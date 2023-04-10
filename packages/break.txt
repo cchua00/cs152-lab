@@ -1,0 +1,19 @@
+## This is a simple loop with a break statement
+
+func main
+(
+)
+var int i;
+{
+  i = 5;
+  while(i > 10) {
+    write i;
+
+    if i < 3 
+      break;
+
+    i = i + 1;
+
+  }
+
+}
