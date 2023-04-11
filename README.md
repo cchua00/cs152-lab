@@ -39,5 +39,5 @@
 | continue | CONTINUE |
 | if | IF |
 | else | ELSE |
-| read | READ |
-| write | WRITE |
+| cin | READ |
+| cout | WRITE |
