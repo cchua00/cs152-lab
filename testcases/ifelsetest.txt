@@ -1,0 +1,20 @@
+func main() 
+
+int m;
+int n;
+int o;
+
+{
+
+    cin >> n;
+    if (n >= 100) {
+        cout << n;
+    }
+    else {
+        m = n-1;
+        cout << m;
+    }
+
+cout << o;
+
+}
