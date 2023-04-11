@@ -1,0 +1,30 @@
+function add(int a, int b)
+{
+  return a + b;
+}
+
+
+func mult(int a, int b)
+{
+  return a * b;
+}
+
+
+
+func main()
+{
+  int a;
+  int b;
+  int c;
+  int d;
+
+
+  a = 100;
+  b = 50;
+  c = add(a, b);
+  cout << c << endl;        // should print 150
+
+
+  d = mult(c, a + b);
+  cout << d << endl;        // should print "22500", since 22500 = 150 * 150;
+}
