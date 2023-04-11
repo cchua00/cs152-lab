@@ -38,7 +38,6 @@
 | break | BREAK |
 | continue | CONTINUE |
 | if | IF |
-| endif | ENDIF| 
 | else | ELSE |
 | read | READ |
 | write | WRITE |
