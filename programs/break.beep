@@ -1,0 +1,18 @@
+## This is a simple loop with a break statement
+
+func main()
+{
+  int i;
+  i = 5;
+
+  while(i > 10) {
+    cout << i << endl;
+
+    if i < 3 
+      break;
+
+    i = i + 1;
+
+  }
+
+}
