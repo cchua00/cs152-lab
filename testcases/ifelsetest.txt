@@ -1,11 +1,9 @@
-func main() 
+func main() {
 
-int m;
-int n;
-int o;
-
-{
-
+    int m;
+    int n;
+    int o;
+    
     cin >> n;
     if (n >= 100) {
         cout << n;
