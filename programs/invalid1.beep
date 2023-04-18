@@ -1,0 +1,11 @@
+int main() {  
+
+
+int 123a;  
+int _a; 
+int a = 4;
+int a_;  
+int ?; 
+cout << a << endl; 
+return 0;
+} 
