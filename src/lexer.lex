@@ -36,7 +36,7 @@ COMMENT "//"([ \t]?.)*
 RETURN "return"
 
 DIGIT [0-9]
-ALPHA [a-zA-z][a-zA-Z0-9]*
+ALPHA [a-zA-z]*
 INVALID [0-9]+{ALPHA}
 
 %%
