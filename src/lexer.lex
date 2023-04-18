@@ -74,10 +74,10 @@ INVALID [0-9]+{ALPHA}
 
 [+-]?{DIGIT}+ {printf("NUMBER: %s\n", yytext); column_number += yyleng; yyless(yyleng);} 
 {ALPHA}+ {printf("Identifier: %s\n", yytext);column_number += yyleng;}
-{INVALID} {printf("%d, %d, %s", line_number, column_number, yytext); return;}
+{INVALID} {printf("%d, %d, %s", line_number, column_number, yytext);}
 " " {column_number += yyleng;}
 "\n" {column_number = 0, line_number++;}
-. {printf("Error at line %d, column %d: Unidentified '%s'\n", line_number, column_number, yytext); return;} 
+. {printf("Error at line %d, column %d: Unidentified '%s'\n", line_number, column_number, yytext);} 
 
 %%
 
