@@ -25,6 +25,7 @@
 | + | ADDITION |
 | - | SUBTRACTION |
 | * | MULTIPLICATION |
+| % | MOD |
 | / | DIVISION |  
 | , | COMMA |
 | ; | END_STATEMENT |
@@ -48,3 +49,6 @@
 | else | ELSE |
 | cin | READ |
 | cout | WRITE |
+| // | COMMENT |
+| return | RETURN |
+
