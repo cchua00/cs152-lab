@@ -36,8 +36,8 @@ COMMENT "//"([ \t]?.)*
 RETURN "return"
 
 DIGIT [0-9]
-ALPHA [a-zA-z]*
-INVALID [0-9]+{ALPHA}
+ALPHA [a-zA-Z][a-zA-Z0-9]*   
+INVALID [0-9]+{ALPHA} 
 
 %%
 
@@ -73,7 +73,7 @@ INVALID [0-9]+{ALPHA}
 {RETURN} {printf("RETURN\n", yytext); column_number += yyleng;}
 
 [+-]?{DIGIT}+ {printf("NUMBER: %s\n", yytext); column_number += yyleng; yyless(yyleng);} 
-{ALPHA}+ {printf("Identifier: %s\n", yytext);column_number += yyleng;}
+{ALPHA} {printf("Identifier: %s\n", yytext);column_number += yyleng;}
 {INVALID} {printf("%d, %d, %s", line_number, column_number, yytext);}
 " " {column_number += yyleng;}
 "\n" {column_number = 0, line_number++;}
