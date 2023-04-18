@@ -21,12 +21,12 @@
 
 | Language Feature | Token Name |
 | --- | --- |
-| var int | INTEGER |
+| int | INTEGER |
 | + | ADDITION |
 | - | SUBTRACTION |
 | * | MULTIPLICATION |
 | / | DIVISION |  
-| . | END_STATEMENT |
+| ; | END_STATEMENT |
 | ( | OPEN_PARAMETER |
 | ) | CLOSE_PARAMETER |
 | { | OPEN_SCOPE |
