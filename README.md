@@ -27,6 +27,8 @@
 | * | MULTIPLICATION |
 | / | DIVISION |  
 | ; | END_STATEMENT |
+| \[ | OPEN_BRACKET |
+| \] | CLOSE_BRACKET |
 | ( | OPEN_PARAMETER |
 | ) | CLOSE_PARAMETER |
 | { | OPEN_SCOPE |
