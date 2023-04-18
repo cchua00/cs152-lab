@@ -26,6 +26,7 @@
 | - | SUBTRACTION |
 | * | MULTIPLICATION |
 | / | DIVISION |  
+| , | COMMA |
 | ; | END_STATEMENT |
 | \[ | OPEN_BRACKET |
 | \] | CLOSE_BRACKET |
