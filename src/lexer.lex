@@ -35,10 +35,14 @@ WRITE "cout"
 COMMENT "//"([ \t]?.)*
 RETURN "return"
 
-DIGIT [0-9]
-ALPHA [a-zA-z]*
-INVALID [0-9]+{ALPHA}
+ENDL "endl" 
+ 
 
+DIGIT [0-9]
+
+ALPHA [a-zA-Z][a-zA-Z0-9]*   
+INVALID [0-9]+{ALPHA} 
+INVALID1 [0-9]+[a-zA-Z][a-zA-Z0-9]*|[a-zA-Z]_[a-zA-Z0-9]*|[+-]?[0-9]+
 %%
 
 {INTEGER} {printf("INTEGER\n", yytext); column_number += yyleng;}
@@ -71,14 +75,20 @@ INVALID [0-9]+{ALPHA}
 {WRITE} {printf("WRITE\n", yytext); column_number += yyleng;}
 {COMMENT} {printf("COMMENT\n", yytext); column_number += yyleng;}
 {RETURN} {printf("RETURN\n", yytext); column_number += yyleng;}
+{ENDL} { printf("ENDL\n", yytext); column_number += yyleng;} 
 
 [+-]?{DIGIT}+ {printf("NUMBER: %s\n", yytext); column_number += yyleng; yyless(yyleng);} 
-{ALPHA}+ {printf("Identifier: %s\n", yytext);column_number += yyleng;}
-{INVALID} {printf("%d, %d, %s", line_number, column_number, yytext);}
+{ALPHA} {printf("Identifier: %s\n", yytext);column_number += yyleng;}
+[0-9_][a-zA-Z0-9_]*[a-zA-Z0-9_]  {printf("Error at line %d, column %d: identifier \"%s\" must begin with a letter\n", column_number, line_number, yytext); exit(0);}   
+{ALPHA}*[_] {printf("Error at line %d, column %d: identifier \"%s\" cannot end with an underscore\n", column_number, line_number, yytext);exit(0);}
+
 " " {column_number += yyleng;}
 "\n" {column_number = 0, line_number++;}
 . {printf("Error at line %d, column %d: Unidentified '%s'\n", line_number, column_number, yytext);} 
 
+
+
+  
 %%
 
 int main(int argc, char* argv[]) {
