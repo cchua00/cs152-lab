@@ -51,4 +51,4 @@
 | cout | WRITE |
 | // | COMMENT |
 | return | RETURN |
-
+| endl | ENDL | 
