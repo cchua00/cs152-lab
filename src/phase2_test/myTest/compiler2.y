@@ -22,15 +22,25 @@ expr: OPEN_PARAMETER expr CLOSE_PARAMETER expr
 
 %%
 
-int main() {
-  yyin = stdin;
+int main(int argc, char* argv[]) {
+  ++argv;
+  --argc;
+  
+  if(argc>0) 
+  {
+    yyin = fopen(argv[0], "r");
+  }
+  else 
+  {
+    yyin = stdin;
+  }
+  
+  printf("Ctrl+D to quit. \n");
+  yyparse();
 
-  do {
-    printf("Parse.\n");
-    yyparse();
-  } while(!feof(yyin));
+
   printf("Parenthesis are balanced!\n");
-  return 0;
+  return 0; 
 }
 
 void yyerror(const char* s) {
