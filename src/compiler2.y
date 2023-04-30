@@ -1,13 +1,49 @@
 %{
-    #include <stdio.h>
-    extern FILE* yyin;
+#include <stdio.h>
+#include <stdlib.h>
+
+extern int yylex();
+extern int yyparse();
+extern FILE* yyin;
+
+
+void yyerror(const char* s);
 %}
 
-%start prog_start
-%token INT SMICOLON IDENT LBR RBR COMMA LPR RPR
+%left OPEN_PARAMETER CLOSE_PARAMETER 
+
+%start expr 
 
 %%
-Prog_start: %empty {printf(“prog_start -> epsilon \n”);}
- | functions {printf(“prog_start -> function \n”);}
- ;
- 
+
+expr: OPEN_PARAMETER expr CLOSE_PARAMETER expr 
+    | %empty
+;
+
+%%
+
+int main(int argc, char* argv[]) {
+  ++argv;
+  --argc;
+  
+  if(argc>0) 
+  {
+    yyin = fopen(argv[0], "r");
+  }
+  else 
+  {
+    yyin = stdin;
+  }
+  
+  yyparse();
+
+
+  printf("Parenthesis are balanced!\n");
+  return 0; 
+}
+
+void yyerror(const char* s) {
+  fprintf(stderr, "Parse error: %s. Parenthesis are not balanced!\n", s);
+  exit(1);
+}
+
