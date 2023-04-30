@@ -35,7 +35,6 @@ int main(int argc, char* argv[]) {
     yyin = stdin;
   }
   
-  printf("Ctrl+D to quit. \n");
   yyparse();
 
 

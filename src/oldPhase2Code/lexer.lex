@@ -1,8 +1,5 @@
-%option noyywrap
-
 %{
 #include <stdio.h>
-#include "compiler2.tab.h"
 int line_number = 0;
 int column_number = 0;
 %} 
@@ -84,4 +81,11 @@ INVALID [0-9]+{ALPHA}
 
 %%
 
-
+int main(int argc, char* argv[]) {
+    ++argv;
+    --argc;
+    if(argc>0) yyin = fopen(argv[0], "r");
+    else yyin = stdin;
+    printf("Ctrl+D to quit. \n");
+    yylex(); 
+}
