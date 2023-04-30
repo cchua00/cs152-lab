@@ -41,15 +41,6 @@ function_call : IDENT LPR params RPR
 
 %%
 
-Return the tokens, you include y.tab.h file to declare the tokens in bison.
-Do global variable stuff before the return obviously. 
-
-
-Move the main function and put it in the bison file.
-Change yylex() to yyparse()
-
-Example main() (given)
-
 Void main(int argc, char**argv) {
 	if(argc>=2) {
 		yyin = fopen(argv[1], “r”);
