@@ -10,15 +10,69 @@ extern FILE* yyin;
 void yyerror(const char* s);
 %}
 
-%left OPEN_PARAMETER CLOSE_PARAMETER 
+%token INTEGER BREAK CONTINUE IF ELSE WHILE FOR READ WRITE COMMENT RETURN DIGIT ALPHA  
+%token ADDITION SUBTRACTION MULTIPLICATION MOD DIVISION
+%token OPEN_PARAMETER CLOSE_PARAMETER OPEN_BRACKET CLOSE_BRACKET OPEN_SCOPE CLOSE_SCOPE COMMA END_STATEMENT ASSIGN
+%token EQUALS_TO NOT_EQUALS_TO LESS_THAN LESS_THAN_OR_EQUAL_TO GREATER_THAN GREATER_THAN_OR_EQUAL_TO EXTRACT INSERT NOT
 
-%start expr 
+
+%start program 
+
 
 %%
+program: function ;
 
-expr: OPEN_PARAMETER expr CLOSE_PARAMETER expr 
-    | %empty
-;
+function: function ALPHA END_STATEMENT
+    | OPEN_PARAMETER declaration END_STATEMENT CLOSE_PARAMETER
+    | OPEN_SCOPE statement CLOSE_SCOPE
+    ;
+
+declaration: INTEGER ALPHA END_STATEMENT
+    | INTEGER ALPHA OPEN_BRACKET DIGIT CLOSE_BRACKET END_STATEMENT
+    ;
+
+statement: variable ASSIGN expr END_STATEMENT
+    | IF OPEN_PARAMETER boolexpr CLOSE_PARAMETER OPEN_SCOPE statement END_STATEMENT CLOSE_SCOPE
+    | IF OPEN_PARAMETER boolexpr CLOSE_PARAMETER OPEN_SCOPE statement END_STATEMENT CLOSE_SCOPE ELSE OPEN_SCOPE statement END_STATEMENT CLOSE_SCOPE 
+    | WHILE OPEN_PARAMETER variable CLOSE_PARAMETER OPEN_SCOPE statement END_STATEMENT CLOSE_SCOPE
+    | READ INSERT variable
+    | WRITE EXTRACT variable
+    | CONTINUE
+    | BREAK
+    | RETURN expr 
+    ;
+
+boolexpr: NOT boolexpr
+    | expr comp expr
+    ;
+
+comp: EQUALS_TO
+    | NOT_EQUALS_TO
+    | GREATER_THAN
+    | LESS_THAN
+    | GREATER_THAN_OR_EQUAL_TO
+    | LESS_THAN_OR_EQUAL_TO 
+    ;
+    
+expr: mulop ADDITION mulop
+    | mulop SUBTRACTION mulop
+    ;
+
+mulop: term MULTIPLICATION term
+    | term DIVISION term
+    | term MOD term
+    ;
+
+term: variable
+    | DIGIT
+    | OPEN_PARAMETER expr CLOSE_PARAMETER
+    | ALPHA
+    | ALPHA OPEN_PARAMETER expr CLOSE_PARAMETER
+    ;
+
+variable: ALPHA
+    | ALPHA OPEN_BRACKET expr CLOSE_BRACKET
+    ;
 
 %%
 
@@ -38,7 +92,7 @@ int main(int argc, char* argv[]) {
   yyparse();
 
 
-  printf("Parenthesis are balanced!\n");
+  printf("Hello World!\n");
   return 0; 
 }
 

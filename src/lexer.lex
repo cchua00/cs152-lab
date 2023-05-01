@@ -28,6 +28,7 @@ GREATER_THAN_OR_EQUAL_TO ">="
 ASSIGN "="
 EQUALS_TO "=="
 NOT_EQUALS_TO "!="
+NOT "!"
 WHILE "while"
 BREAK "break"
 CONTINUE "continue"
@@ -35,6 +36,8 @@ IF "if"
 ELSE "else"
 READ "cin"
 WRITE "cout"
+INSERT ">>"
+EXTRACT "<<"
 COMMENT "//"([ \t]?.)*
 RETURN "return"
 
@@ -69,6 +72,7 @@ INVALID1 [0-9]+[a-zA-Z][a-zA-Z0-9]*|[a-zA-Z]_[a-zA-Z0-9]*|[+-]?[0-9]+
 {ASSIGN} {printf("ASSIGN\n", yytext); column_number += yyleng;}
 {EQUALS_TO} {printf("EQUALS_TO\n", yytext); column_number += yyleng;}
 {NOT_EQUALS_TO} {printf("NOT_EQUALS_TO\n", yytext); column_number += yyleng;}
+{NOT} {printf("NOT\n", yytext); column_number += yyleng;}
 {WHILE} {printf("WHILE\n", yytext); column_number += yyleng;}
 {BREAK} {printf("BREAK\n", yytext); column_number += yyleng;}
 {CONTINUE} {printf("CONTINUE\n", yytext); column_number += yyleng;}
@@ -76,6 +80,8 @@ INVALID1 [0-9]+[a-zA-Z][a-zA-Z0-9]*|[a-zA-Z]_[a-zA-Z0-9]*|[+-]?[0-9]+
 {ELSE} {printf("ELSE\n", yytext); column_number += yyleng;}
 {READ} {printf("READ\n", yytext); column_number += yyleng;}
 {WRITE} {printf("WRITE\n", yytext); column_number += yyleng;}
+{INSERT} {printf("INSERT\n", yytext); column_number += yyleng;}
+{EXTRACT} {printf("EXTRACT\n", yytext); column_number += yyleng;}
 {COMMENT} {printf("COMMENT\n", yytext); column_number += yyleng;}
 {RETURN} {printf("RETURN\n", yytext); column_number += yyleng;}
 {ENDL} { printf("ENDL\n", yytext); column_number += yyleng;} 
