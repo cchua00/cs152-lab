@@ -36,6 +36,8 @@ IF "if"
 ELSE "else"
 READ "cin"
 WRITE "cout"
+INSERT ">>"
+EXTRACT "<<"
 COMMENT "//"([ \t]?.)*
 RETURN "return"
 
@@ -74,6 +76,8 @@ INVALID [0-9]+{ALPHA}
 {ELSE} {printf("ELSE\n", yytext); column_number += yyleng;}
 {READ} {printf("READ\n", yytext); column_number += yyleng;}
 {WRITE} {printf("WRITE\n", yytext); column_number += yyleng;}
+{INSERT} {printf("INSERT\n", yytext); column_number += yyleng;}
+{EXTRACT} {printf("EXTRACT\n", yytext); column_number += yyleng;}
 {COMMENT} {printf("COMMENT\n", yytext); column_number += yyleng;}
 {RETURN} {printf("RETURN\n", yytext); column_number += yyleng;}
 

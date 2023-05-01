@@ -32,17 +32,17 @@ declaration: INTEGER ALPHA END_STATEMENT
     ;
 
 statement: variable ASSIGN expr END_STATEMENT
-    | IF OPEN_PARAMETER variable comp variable CLOSE_PARAMETER OPEN_SCOPE statement END_STATEMENT CLOSE_SCOPE
-    | IF OPEN_PARAMETER variable comp variable CLOSE_PARAMETER OPEN_SCOPE statement END_STATEMENT CLOSE_SCOPE ELSE OPEN_SCOPE statement END_STATEMENT CLOSE_SCOPE 
+    | IF OPEN_PARAMETER boolexpr CLOSE_PARAMETER OPEN_SCOPE statement END_STATEMENT CLOSE_SCOPE
+    | IF OPEN_PARAMETER boolexpr CLOSE_PARAMETER OPEN_SCOPE statement END_STATEMENT CLOSE_SCOPE ELSE OPEN_SCOPE statement END_STATEMENT CLOSE_SCOPE 
     | WHILE OPEN_PARAMETER variable CLOSE_PARAMETER OPEN_SCOPE statement END_STATEMENT CLOSE_SCOPE
-    | READ variable
-    | WRITE variable
+    | READ INSERT variable
+    | WRITE EXTRACT variable
     | CONTINUE
     | BREAK
     | RETURN expr 
     ;
 
-bool-expr: NOT bool-expr
+boolexpr: NOT boolexpr
     | expr comp expr
     ;
 
@@ -74,7 +74,6 @@ variable: ALPHA
     | ALPHA OPEN_BRACKET expr CLOSE_BRACKET
     ;
 
-assign: variable ASSIGN expr ';';
 %%
 
 int main(int argc, char* argv[]) {
