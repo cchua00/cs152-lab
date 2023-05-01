@@ -28,6 +28,7 @@ GREATER_THAN_OR_EQUAL_TO ">="
 ASSIGN "="
 EQUALS_TO "=="
 NOT_EQUALS_TO "!="
+NOT "!"
 WHILE "while"
 BREAK "break"
 CONTINUE "continue"
@@ -65,6 +66,7 @@ INVALID [0-9]+{ALPHA}
 {ASSIGN} {printf("ASSIGN\n", yytext); column_number += yyleng;}
 {EQUALS_TO} {printf("EQUALS_TO\n", yytext); column_number += yyleng;}
 {NOT_EQUALS_TO} {printf("NOT_EQUALS_TO\n", yytext); column_number += yyleng;}
+{NOT} {printf("NOT\n", yytext); column_number += yyleng;}
 {WHILE} {printf("WHILE\n", yytext); column_number += yyleng;}
 {BREAK} {printf("BREAK\n", yytext); column_number += yyleng;}
 {CONTINUE} {printf("CONTINUE\n", yytext); column_number += yyleng;}
