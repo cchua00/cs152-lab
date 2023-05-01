@@ -97,7 +97,7 @@ int main(int argc, char* argv[]) {
 }
 
 void yyerror(const char* s) {
-  fprintf(stderr, "Parse error: %s. Parenthesis are not balanced!\n", s);
+  fprintf(stderr, "Error: %s. \n", s);
   exit(1);
 }
 
