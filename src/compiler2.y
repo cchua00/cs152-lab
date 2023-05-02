@@ -6,8 +6,11 @@ extern int yylex();
 extern int yyparse();
 extern FILE* yyin;
 
-
-void yyerror(const char* s);
+extern int line_number;
+extern int column_number; 
+void yyerror(const char * s) {
+	printf("Error: On line %d, column %d: %s \n", line_number, column_number, s);
+}
 %}
 
 %token INTEGER BREAK CONTINUE IF ELSE WHILE FOR READ WRITE COMMENT RETURN DIGIT ALPHA  
@@ -90,12 +93,5 @@ int main(int argc, char* argv[]) {
   
   yyparse();
 
-
-  printf("Hello World!\n");
-  return 0; 
+  return 1; 
 }
-
-void yyerror(const char* s) {
-  fprintf(stderr, "Syntax Error on line %s. \n", s);
-}
-
