@@ -1,18 +1,15 @@
-// This is a simple loop with a break statement
-
-func main()
-{
+int main() {
   int i;
   i = 5;
 
   while(i > 10) {
-    cout << i << endl;
+    
+    cout << i;
 
-    if i < 3 
+    if (i < 3) {
       break;
-
+    }
     i = i + 1;
 
   }
-
 }

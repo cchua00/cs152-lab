@@ -1,17 +1,14 @@
-function add(int a, int b)
+int add(int a, int b)
 {
   return a + b;
 }
 
-
-func mult(int a, int b)
+int mult(int a, int b)
 {
   return a * b;
 }
 
-
-
-func main()
+int main()
 {
   int a;
   int b;
@@ -22,9 +19,8 @@ func main()
   a = 100;
   b = 50;
   c = add(a, b);
-  cout << c << endl;        // should print 150
-
+  cout << c;       
 
   d = mult(c, a + b);
-  cout << d << endl;        // should print "22500", since 22500 = 150 * 150;
+  cout << d;
 }

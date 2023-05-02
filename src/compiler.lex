@@ -29,17 +29,14 @@ int column_number = 1;
 "!" {column_number += yyleng; return NOT;}
 int {column_number += yyleng; return INTEGER;}
 while {column_number += yyleng; return WHILE;}
-int {column_number += yyleng; return INTEGER;}
 break {column_number += yyleng; return BREAK;}
 continue {column_number += yyleng; return CONTINUE;}
 if {column_number += yyleng; return IF;}
 else {column_number += yyleng; return ELSE;}
-continue {column_number += yyleng; return CONTINUE;}
 cin {column_number += yyleng; return READ;}
 cout {column_number += yyleng; return WRITE;}
 ">>" {column_number += yyleng; return INSERT;}
 "<<" {column_number += yyleng; return EXTRACT;}
-"//"([ \t]?.)* {column_number += yyleng; return COMMENT;}
 return {column_number += yyleng; return RETURN;}
 
 (##).* {column_number = 1;}
