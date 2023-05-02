@@ -26,9 +26,7 @@ function: variable OPEN_PARAMETER variable CLOSE_PARAMETER END_STATEMENT
     | variable OPEN_PARAMETER variable CLOSE_PARAMETER OPEN_SCOPE statement CLOSE_SCOPE
     ;
 
-declaration: variable END_STATEMENT
-    | variable END_STATEMENT
-    ;
+declaration: variable END_STATEMENT ;
 
 statement: variable ASSIGN expr END_STATEMENT
     | IF OPEN_PARAMETER boolexpr CLOSE_PARAMETER OPEN_SCOPE statement END_STATEMENT CLOSE_SCOPE
