@@ -22,13 +22,12 @@ void yyerror(const char* s);
 %%
 program: function ;
 
-function: function ALPHA END_STATEMENT
-    | OPEN_PARAMETER declaration END_STATEMENT CLOSE_PARAMETER
-    | OPEN_SCOPE statement CLOSE_SCOPE
+function: variable OPEN_PARAMETER variable CLOSE_PARAMETER END_STATEMENT
+    | variable OPEN_PARAMETER variable CLOSE_PARAMETER OPEN_SCOPE statement CLOSE_SCOPE
     ;
 
-declaration: INTEGER ALPHA END_STATEMENT
-    | INTEGER ALPHA OPEN_BRACKET DIGIT CLOSE_BRACKET END_STATEMENT
+declaration: variable END_STATEMENT
+    | variable END_STATEMENT
     ;
 
 statement: variable ASSIGN expr END_STATEMENT
@@ -70,8 +69,8 @@ term: variable
     | ALPHA OPEN_PARAMETER expr CLOSE_PARAMETER
     ;
 
-variable: ALPHA
-    | ALPHA OPEN_BRACKET expr CLOSE_BRACKET
+variable: INTEGER ALPHA
+    | INTEGER ALPHA OPEN_BRACKET expr CLOSE_BRACKET
     ;
 
 %%
@@ -97,7 +96,6 @@ int main(int argc, char* argv[]) {
 }
 
 void yyerror(const char* s) {
-  fprintf(stderr, "Parse error: %s. Parenthesis are not balanced!\n", s);
-  exit(1);
+  fprintf(stderr, "Syntax Error on line %s. \n", s);
 }
 

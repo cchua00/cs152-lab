@@ -1,8 +1,8 @@
 int main()
 {
-    int : beep;
+    int : beep; 
     beep = 5 + 4 * 3;
-    string boop
+    int boop
 
     return 0;
 }
