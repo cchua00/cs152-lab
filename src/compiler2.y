@@ -4,8 +4,8 @@
 
 extern int yylex();
 extern int yyparse();
-extern FILE* yyin;
 
+extern FILE* yyin;
 extern int line_number;
 extern int column_number; 
 void yyerror(const char * s) {
@@ -13,66 +13,125 @@ void yyerror(const char * s) {
 }
 %}
 
+%error-verbose
+
+%start program
+
 %token INTEGER BREAK CONTINUE IF ELSE WHILE FOR READ WRITE COMMENT RETURN DIGIT ALPHA  
 %token ADDITION SUBTRACTION MULTIPLICATION MOD DIVISION
 %token OPEN_PARAMETER CLOSE_PARAMETER OPEN_BRACKET CLOSE_BRACKET OPEN_SCOPE CLOSE_SCOPE COMMA END_STATEMENT ASSIGN
 %token EQUALS_TO NOT_EQUALS_TO LESS_THAN LESS_THAN_OR_EQUAL_TO GREATER_THAN GREATER_THAN_OR_EQUAL_TO EXTRACT INSERT NOT
 
-
-%start program 
-
-
 %%
-program: function ;
 
-function: variable OPEN_PARAMETER variable CLOSE_PARAMETER END_STATEMENT
-    | variable OPEN_PARAMETER variable CLOSE_PARAMETER OPEN_SCOPE statement CLOSE_SCOPE
-    ;
+program: functions
+		| error {yyerrok; yyclearin;}
+       		;
 
-declaration: variable END_STATEMENT ;
+functions: /*epsilon*/
+		| function functions
+		;
 
-statement: variable ASSIGN expr END_STATEMENT
-    | IF OPEN_PARAMETER boolexpr CLOSE_PARAMETER OPEN_SCOPE statement END_STATEMENT CLOSE_SCOPE
-    | IF OPEN_PARAMETER boolexpr CLOSE_PARAMETER OPEN_SCOPE statement END_STATEMENT CLOSE_SCOPE ELSE OPEN_SCOPE statement END_STATEMENT CLOSE_SCOPE 
-    | WHILE OPEN_PARAMETER variable CLOSE_PARAMETER OPEN_SCOPE statement END_STATEMENT CLOSE_SCOPE
-    | READ INSERT variable
-    | WRITE EXTRACT variable
-    | CONTINUE
-    | BREAK
-    | RETURN expr 
-    ;
+function: INTEGER Ident OPEN_PARAMETER declarations CLOSE_PARAMETER OPEN_SCOPE statements CLOSE_SCOPE
+		;
 
-boolexpr: NOT boolexpr
-    | expr comp expr
-    ;
+declarations: /*epsilon*/
+		| declaration COMMA declarations
+		| declaration error {yyerrok;}
+		;
+
+declaration: identifiers
+		;
+
+identifiers: Ident
+		| Ident COMMA identifiers
+		;
+
+Ident: ALPHA
+		;
+
+statements:	statement END_STATEMENT statements
+		| statement END_STATEMENT
+		| statement error {yyerrok;}
+		;
+
+statement: svar
+	  	| sif
+		| swhile
+		| sread
+		| swrite
+		| scontinue
+		| sreturn
+		;
+
+svar: var ASSIGN expression
+		;
+
+sif: IF OPEN_PARAMETER bool_expr CLOSE_PARAMETER OPEN_SCOPE statements CLOSE_SCOPE
+		| IF OPEN_PARAMETER bool_expr CLOSE_PARAMETER OPEN_SCOPE statements CLOSE_SCOPE ELSE OPEN_SCOPE statements CLOSE_SCOPE
+		;
+
+swhile: WHILE OPEN_PARAMETER bool_expr CLOSE_PARAMETER OPEN_SCOPE statements CLOSE_SCOPE
+		;
+
+sread: READ INSERT ALPHA
+		;
+     
+swrite: WRITE EXTRACT ALPHA
+		;
+
+scontinue: CONTINUE
+		;
+
+sreturn: RETURN expression
+		;
+
+bool_expr: relation_exprs
+		;
+
+relation_exprs: relation_expr
+		;
+
+relation_expr: NOT ece
+		| ece
+		| OPEN_SCOPE bool_expr CLOSE_PARAMETER
+		;
+
+ece: expression comp expression
+		;
 
 comp: EQUALS_TO
-    | NOT_EQUALS_TO
-    | GREATER_THAN
-    | LESS_THAN
-    | GREATER_THAN_OR_EQUAL_TO
-    | LESS_THAN_OR_EQUAL_TO 
-    ;
-    
-expr: mulop ADDITION mulop
-    | mulop SUBTRACTION mulop
-    ;
+		| NOT_EQUALS_TO
+		| LESS_THAN
+		| GREATER_THAN
+		| LESS_THAN_OR_EQUAL_TO
+		| GREATER_THAN_OR_EQUAL_TO
+		;
 
-mulop: term MULTIPLICATION term
-    | term DIVISION term
-    | term MOD term
-    ;
+expression:	multi_expr addSubExpr
+		| error {yyerrok;}
+		;
 
-term: variable
-    | DIGIT
-    | OPEN_PARAMETER expr CLOSE_PARAMETER
-    | ALPHA
-    | ALPHA OPEN_PARAMETER expr CLOSE_PARAMETER
-    ;
+addSubExpr:	/*epsilon*/
+		| ADDITION expression
+		| SUBTRACTION expression
+		;
 
-variable: INTEGER ALPHA
-    | INTEGER ALPHA OPEN_BRACKET expr CLOSE_BRACKET
-    ;
+multi_expr:	term
+		| term MULTIPLICATION multi_expr
+		| term DIVISION multi_expr
+		| term MOD multi_expr
+		;
+
+term: SUBTRACTION var
+		| var
+		| SUBTRACTION DIGIT
+		| DIGIT
+		| OPEN_PARAMETER expression CLOSE_PARAMETER
+		;
+
+var: Ident
+		;
 
 %%
 

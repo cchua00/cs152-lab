@@ -2,7 +2,7 @@
 
 %{
 #include "compiler2.tab.h"
-int line_number = 0;
+int line_number = 1;
 int column_number = 1;
 %} 
 
@@ -39,7 +39,6 @@ INSERT ">>"
 EXTRACT "<<"
 COMMENT "//"([ \t]?.)*
 RETURN "return"
-ENDL "endl"
 
 DIGIT [0-9]
 
@@ -81,7 +80,6 @@ INVALID1 [0-9]+[a-zA-Z][a-zA-Z0-9]*|[a-zA-Z]_[a-zA-Z0-9]*|[+-]?[0-9]+
 {EXTRACT} {column_number += yyleng; return EXTRACT;}
 {COMMENT} {column_number += yyleng; return COMMENT;}
 {RETURN} {column_number += yyleng; return RETURN;}
-{ENDL} {column_number += yyleng; return ENDL;}
 
 [+-]?{DIGIT}+ {column_number += yyleng; return DIGIT;} 
 {ALPHA} {column_number += yyleng; return ALPHA;}
@@ -89,7 +87,7 @@ INVALID1 [0-9]+[a-zA-Z][a-zA-Z0-9]*|[a-zA-Z]_[a-zA-Z0-9]*|[+-]?[0-9]+
 {ALPHA}*[_] {printf("Error at line %d, column %d: identifier \"%s\" cannot end with an underscore\n", column_number, line_number, yytext);exit(0);}
 
 " " {column_number += yyleng;}
-"\n" {column_number = 0, line_number++;}
+"\n" {column_number = 0; line_number++;}
 . {printf("Error at line %d, column %d: Unidentified '%s'\n", line_number, column_number, yytext);} 
   
 %%
