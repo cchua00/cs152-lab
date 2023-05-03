@@ -19,14 +19,14 @@ void yyerror(const char * s) {
 %token ALPHA DIGIT
 %token ADDITION SUBTRACTION MULTIPLICATION DIVISION MOD ASSIGN
 %token EQUALS_TO NOT_EQUALS_TO LESS_THAN GREATER_THAN LESS_THAN_OR_EQUAL_TO GREATER_THAN_OR_EQUAL_TO NOT OPEN_PARAMETER
-%token CLOSE_PARAMETER OPEN_SCOPE CLOSE_SCOPE OPEN_BRACKET CLOSE_BRACKET END_STATEMENT COMMA
+%token CLOSE_PARAMETER OPEN_SCOPE CLOSE_SCOPE OPEN_BRACKET CLOSE_BRACKET END_STATEMENT COMMA ENDL
 
 %%
 prog_start: %empty /* epsilon */ {printf("prog_start->epsilon\n");} 
         | functions {printf("prog_start -> functions\n");}
         ;
 
-function_call: ALPHA OPEN_PARAMETER args CLOSE_PARAMETER END_STATEMENT {printf("function_call -> ALPHA OPEN_PARAMETER args CLOSE_PARAMETER END_STATEMENT\n");}
+function_call: ALPHA OPEN_PARAMETER args CLOSE_PARAMETER {printf("function_call -> ALPHA OPEN_PARAMETER args CLOSE_PARAMETER END_STATEMENT\n");}
 
 functions: function {printf("functions -> function\n");}
         | function functions {printf("functions -> function functions\n");}
@@ -43,7 +43,9 @@ repeat_arguments: %empty {printf("repeat_arguments -> epsilon\n");}
                 | COMMA argument repeat_arguments {printf("repeat_arguments -> COMMA argument repeat_arguments\n");}
                 ;
 
-argument: INTEGER ALPHA {printf("argument -> INTEGER ALPHA\n");}
+argument: ALPHA {printf("argument -> ALPHA\n");}
+        | expression {printf("argument -> expression\n");}
+        | INTEGER ALPHA {printf("argument -> INTEGER ALPHA\n");}
 	    ;
 
 statements: %empty /* epsilon */ {printf("statements -> epsilon\n");}
@@ -63,6 +65,7 @@ statement: var_declaration {printf("statement -> var_declaration\n");}
         ;
 
 var_declaration: INTEGER ALPHA END_STATEMENT {printf("var_declaration -> INTEGER ALPHA END_STATEMENT\n");}
+                | INTEGER ALPHA repeat_arguments END_STATEMENT {printf("var_declaration -> INTEGER ALPHA END_STATEMENT\n");}
                 | INTEGER ALPHA ASSIGN DIGIT END_STATEMENT {printf("var_declaration -> INTEGER ALPHA ASSIGN DIGIT END_STATEMENT\n");}
                 | INTEGER ALPHA OPEN_BRACKET DIGIT CLOSE_BRACKET END_STATEMENT {printf("var_declaration -> INTEGER ALPHA OPEN_BRACKET DIGIT CLOSE_BRACKET\n");}
 	            ;
@@ -72,11 +75,14 @@ assign_statement: ALPHA ASSIGN expression END_STATEMENT {printf("assign_statemen
                 ;
 
 print_statement: WRITE EXTRACT ALPHA END_STATEMENT {printf("print_statement -> WRITE EXTRACT ALPHA END_STATEMENT\n");}
+                | WRITE EXTRACT ALPHA EXTRACT ENDL END_STATEMENT {printf("print_statement -> WRITE EXTRACT ALPHA EXTRACT ENDL END_STATEMENT\n");}
                 | WRITE EXTRACT DIGIT END_STATEMENT {printf("print_statement -> WRITE EXTRACT DIGIT END_STATEMENT\n");}
+                | WRITE EXTRACT DIGIT EXTRACT ENDL END_STATEMENT {printf("print_statement -> WRITE EXTRACT DIGIT EXTRACT ENDL END_STATEMENT\n");}
                 | WRITE EXTRACT ALPHA OPEN_BRACKET DIGIT CLOSE_BRACKET END_STATEMENT {printf("print_statement -> WRITE EXTRACT ALPHA OPEN_BRACKET DIGIT CLOSE_BRACKET END_STATEMENT\n");}
+                | WRITE EXTRACT ALPHA OPEN_BRACKET DIGIT CLOSE_BRACKET EXTRACT ENDL END_STATEMENT {printf("print_statement -> WRITE EXTRACT ALPHA OPEN_BRACKET DIGIT CLOSE_BRACKET EXTRACT ENDL END_STATEMENT\n");}
 
 
-input_statement: READ INSERT ALPHA {printf("input_statement -> READ OPEN_PARAMETER CLOSE_PARAMETER\n");}
+input_statement: READ INSERT ALPHA END_STATEMENT {printf("input_statement -> READ OPEN_PARAMETER CLOSE_PARAMETER\n");}
                 ;
 
 if_statement: IF OPEN_PARAMETER expression CLOSE_PARAMETER OPEN_SCOPE statements CLOSE_SCOPE {printf("if_statement -> IF OPEN_PARAMETER expression CLOSE_PARAMETER OPEN_SCOPE statement CLOSE_SCOPE\n");}
@@ -118,9 +124,11 @@ args: %empty {printf("args -> epsilon\n");}
     | arg repeat_args {printf("args -> arg repeat_args\n");}
 
 repeat_args: %empty {printf("repeat_args -> epsilon\n");}
+        | expression {printf("argument -> expression\n");}
         | COMMA arg repeat_args {printf("repeat_args -> COMMA arg repeat_args\n");}
 
-arg: ALPHA {printf("arg -> ALPHA\n");}
+arg: expression {printf("argument -> expression\n");}
+        ;
 
 return_statement: RETURN expression END_STATEMENT {printf("return_statement -> RETURN expression END_STATEMENT\n");}
 

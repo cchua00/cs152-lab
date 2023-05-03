@@ -38,6 +38,7 @@ cout {column_number += yyleng; return WRITE;}
 ">>" {column_number += yyleng; return INSERT;}
 "<<" {column_number += yyleng; return EXTRACT;}
 return {column_number += yyleng; return RETURN;}
+endl {column_number += yyleng; return ENDL;}
 
 (##).* {column_number = 1;}
 
