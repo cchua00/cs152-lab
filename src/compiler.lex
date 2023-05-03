@@ -1,6 +1,6 @@
 %{
 #include "y.tab.h"
-int line_number = 0;
+int line_number = 1;
 int column_number = 1;
 %} 
 
@@ -50,7 +50,8 @@ return {column_number += yyleng; return RETURN;}
 
 [ ]+ {column_number += yyleng;}
 [\t]+ {column_number += yyleng;}
-"\n"+ {line_number++; column_number = 1;}
+"\n" {line_number++; column_number = 1;}
+"//"([ \t]?.)*   {/*ignore comment*/ line_number++; column_number = 1; }
 . {printf("Error at line %d. column %d: unrecognized symbol \"%s\"\n", line_number, column_number, yytext); exit(0);}
 
 %%
