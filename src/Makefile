@@ -1,9 +1,7 @@
-all: compiler2
-compiler2.tab.c compiler2.tab.h:	compiler2.y
-	bison -t -v -d compiler2.y
-lex.yy.c: lexer.lex compiler2.tab.h
-	flex lexer.lex 
-compiler2: lex.yy.c compiler2.tab.c compiler2.tab.h
-	g++ -o compiler2 compiler2.tab.c lex.yy.c
+all:
+	flex compiler.lex
+	bison -v -d --file-prefix=y compiler.y
+	gcc -o parser lex.yy.c y.tab.c -lfl
+
 clean:
-	rm compiler2 compiler2.tab.c lex.yy.c compiler2.tab.h compiler2.output
+	rm -f parser lex.yy.c y.tab.c y.tab.h y.output
