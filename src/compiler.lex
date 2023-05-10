@@ -56,4 +56,3 @@ endl {column_number += yyleng; return ENDL;}
 
 %%
 
-

@@ -1,0 +1,107 @@
+//how output should look after running it through basic
+func main
+. n //declares variable called n
+= n, 150 //n = 150
+.> n // prints n to screen
+endfunc
+
+//to run, in terminal type "mil_run basic.mil"
+
+//starter code notes... example code in TA's bison.y
+//=======================================================================
+prog_start: %empty /* epsilon */ 
+        {
+        
+                CodeNode *node = new CodeNode;
+                $$ = node;
+
+        ;} 
+        | functions 
+        {
+                CodeNode *node = $1; //$$ left hand side, $1 refers to first left most element on the left hand side of the grammer
+                printf("All generated code: \n");
+                printf("%s\n", node->code.c_str();)      //prints out all the code to screen
+        }
+        ;
+
+functions: function {;}
+        | function functions 
+        {
+                CodeNode *func = $1;
+                CodeNode *funcs = $2;
+                std::string code= func->code + funcs->code;
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
+        ;}
+        ;
+
+function: INTEGER ALPHA OPEN_PARAMETER arguments CLOSE_PARAMETER OPEN_SCOPE statements CLOSE_SCOPE 
+        {
+                std::string func_name =$2;
+                CodeNode *params = $5; //this is from demo. your could should reflect the rule you made for your own specific project
+                CodeNode *locals = $8;
+                std::string code = std::string("func ") + func_name + std::string("\n");
+                code += 
+                code += std::string("endfunc\n");
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
+        ;}
+	    ;
+
+declarations:
+%empty
+{
+    CodeNode *node = new CodeNode;
+    $$ = node;
+}
+| declaration SEMICOLON declarations //$1 first guy, $2 second guy, $3 third guy
+{
+    CodeNode *decl = $1;
+    CodeNode *decls = $3;
+    std::string code = decl->code + decls->code;
+    CodeNode *node = new CodeNode;
+    node ->code = code;
+    $$ = node;
+};
+
+//symbol table refex:
+declaration: IDENT COOLON INTEGER       
+{
+        //add variable to symbol table
+        std::string value = $1;
+        Type t = Integer;
+        add_variab;e_to_symbol_table(value, t)
+
+        //a: integer; => ". a"
+        std::string code = std::string(". ") + value + std::string("\n");
+        CodeNode *node = new CodeNode;
+        node->code = code;
+        $$ = node;
+}
+
+//symbol table error catching example:
+| IDENT ASSIGN symbol 
+{
+        // a := 100
+        // a := c
+        std::string ident = $1;
+        std::string symbol = $3;
+        if(!(find(ident))) {
+                std::string message = "undefined symbol '" + ident + "'";
+                CodeNode *node = new CodeNode;
+                node -> code = code;
+                $$ = node; 
+        }
+}
+
+//=================================================================================
+//to run:
+ ./compiler.y < declare.beep
+
+ //to verify IR:
+ ./mil_run IR_Code.mil
+
+//===========================
+//We also need to do error checking, this is where we use the symbol table
