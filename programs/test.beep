@@ -1,4 +1,0 @@
-int main(int b){
-	int sum = 0;
-	add();
-}

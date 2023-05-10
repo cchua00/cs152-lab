@@ -4,10 +4,10 @@
 #include <string.h>
 #include <vector>
 #include "y.tab.h"
-
 extern FILE* yyin;
 extern int line_number;
 extern int column_number; 
+
 void yyerror(const char * s) {
     printf("Error: On line %d, column %d: %s \n", line_number, column_number, s);
 }
@@ -106,11 +106,11 @@ void print_symbol_table(void) {
 
 %error-verbose
 %start prog_start
-%token INVALID_TOKEN
+
 %token WRITE READ WHILE BREAK CONTINUE IF ELSE INSERT EXTRACT RETURN INTEGER
 %token ALPHA DIGIT
 %token ADDITION SUBTRACTION MULTIPLICATION DIVISION MOD ASSIGN
-%token EQUALS_TO NOT_EQUALS_TO LESS_THAN GREATER_THAN LESS_THAN_OR_EQUAL_TO GREATER_THAN_OR_EQUAL_TO NOT OPEN_PARAMETER
+%token EQUALS_TO LESS_THAN GREATER_THAN LESS_THAN_OR_EQUAL_TO GREATER_THAN_OR_EQUAL_TO NOT OPEN_PARAMETER
 %token CLOSE_PARAMETER OPEN_SCOPE CLOSE_SCOPE OPEN_BRACKET CLOSE_BRACKET END_STATEMENT COMMA ENDL
 %type <node> functions
 %type <node> function
@@ -145,7 +145,7 @@ function:
         {
 
         }
-	;
+	      ;
 
 statements: 
         statement statements 
@@ -316,7 +316,10 @@ expression:
         ;
 
 binary_expression: 
-        add_expression {printf("binary_expression -> add_expression\n");}
+        add_expression 
+        {
+        
+        }
         | binary_expression EQUALS_TO add_expression 
         {
                 
@@ -343,13 +346,14 @@ binary_expression:
         }
         ;
 
-add_expression: mult_expression 
+add_expression: 
+        mult_expression 
         {
 
         }
         | add_expression ADDITION mult_expression 
         {
-
+        
         }
         | add_expression SUBTRACTION mult_expression 
         {
@@ -408,7 +412,10 @@ param:
         {
 
         }
-        | %empty {printf("param -> epsilon\n");}
+        | %empty 
+        {
+        
+        }
         ;
 
 params: 
@@ -468,7 +475,6 @@ return_expression:
 
         }
         ;
-
 %%
 
 void main(int argc, char** argv) {
