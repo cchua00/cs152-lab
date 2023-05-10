@@ -4,8 +4,6 @@
 #include "y.tab.h"
 
 extern FILE* yyin;
-extern int yylex();
-extern int yylineno;
 extern int line_number;
 extern int column_number; 
 void yyerror(const char * s) {
@@ -49,12 +47,6 @@ prog_start:
         }
         ;
 
-function_call: 
-        ALPHA OPEN_PARAMETER args CLOSE_PARAMETER 
-        {
-
-        }
-
 functions: 
         function 
         {
@@ -67,63 +59,29 @@ functions:
         ;
 
 function: 
-        INTEGER ALPHA OPEN_PARAMETER arguments CLOSE_PARAMETER OPEN_SCOPE statements CLOSE_SCOPE 
-        {
-
-        }
-	;
-
-arguments: 
-        %empty 
-        {
-
-        }
-        | argument repeat_arguments 
-        {
-
-        }
-        ;
-
-repeat_arguments: 
-        %empty 
-        {
-
-        }
-        | COMMA argument repeat_arguments {printf("repeat_arguments -> COMMA argument repeat_arguments\n");}
-        ;
-
-argument: 
-        ALPHA 
-        {
-
-        }
-        | expression 
-        {
-
-        }
-        | INTEGER ALPHA 
+        INTEGER ALPHA OPEN_PARAMETER args CLOSE_PARAMETER OPEN_SCOPE statements CLOSE_SCOPE 
         {
 
         }
 	;
 
 statements: 
-        %empty /* epsilon */ 
+        statement statements 
         {
 
         }
-        | statement statements 
+        | %empty 
         {
 
         }
         ;
 
 statement: 
-        var_declaration 
+        int_declaration 
         {
 
         }
-        | assign_statement 
+        | array_declaration 
         {
 
         }
@@ -159,103 +117,275 @@ statement:
         {
 
         }
-        ;
-
-var_declaration: 
-        INTEGER ALPHA END_STATEMENT 
+        | assign_int 
         {
 
         }
-        | INTEGER ALPHA repeat_arguments END_STATEMENT 
-        {
-
-        }
-        | INTEGER ALPHA ASSIGN DIGIT END_STATEMENT 
-        {
-
-        }
-        | INTEGER ALPHA OPEN_BRACKET DIGIT CLOSE_BRACKET END_STATEMENT 
+        | assign_array 
         {
 
         }
         ;
+
+int_declaration: 
+        INTEGER ALPHA assign_statement END_STATEMENT 
+        {
+
+        }
+        ;
+
+array_declaration: 
+        INTEGER ALPHA OPEN_BRACKET add_expression CLOSE_BRACKET assign_statement END_STATEMENT 
+        {
+
+        }
+	;
 
 assign_statement: 
-        ALPHA ASSIGN expression END_STATEMENT 
+        %empty 
         {
 
         }
-        | expression ASSIGN expression END_STATEMENT 
+        | ASSIGN add_expression 
         {
 
         }
         ;
 
 print_statement: 
-        WRITE EXTRACT ALPHA END_STATEMENT 
+        WRITE EXTRACT binary_expression END_STATEMENT 
         {
 
         }
-        | WRITE EXTRACT ALPHA EXTRACT ENDL END_STATEMENT {
+        | 
+        WRITE EXTRACT binary_expression EXTRACT ENDL END_STATEMENT 
+        {
 
         }
-        | WRITE EXTRACT DIGIT END_STATEMENT 
-        {}
-                | WRITE EXTRACT DIGIT EXTRACT ENDL END_STATEMENT {printf("print_statement -> WRITE EXTRACT DIGIT EXTRACT ENDL END_STATEMENT\n");}
-                | WRITE EXTRACT ALPHA OPEN_BRACKET DIGIT CLOSE_BRACKET END_STATEMENT {printf("print_statement -> WRITE EXTRACT ALPHA OPEN_BRACKET DIGIT CLOSE_BRACKET END_STATEMENT\n");}
-                | WRITE EXTRACT ALPHA OPEN_BRACKET DIGIT CLOSE_BRACKET EXTRACT ENDL END_STATEMENT {printf("print_statement -> WRITE EXTRACT ALPHA OPEN_BRACKET DIGIT CLOSE_BRACKET EXTRACT ENDL END_STATEMENT\n");}
-
-
-input_statement: READ INSERT ALPHA END_STATEMENT {printf("input_statement -> READ OPEN_PARAMETER CLOSE_PARAMETER\n");}
-                ;
-
-if_statement: IF OPEN_PARAMETER expression CLOSE_PARAMETER OPEN_SCOPE statements CLOSE_SCOPE {printf("if_statement -> IF OPEN_PARAMETER expression CLOSE_PARAMETER OPEN_SCOPE statement CLOSE_SCOPE\n");}
-            | IF OPEN_PARAMETER expression CLOSE_PARAMETER OPEN_SCOPE statements CLOSE_SCOPE ELSE OPEN_SCOPE statements CLOSE_SCOPE {printf("if_statement -> IF OPEN_PARAMETER expression CLOSE_PARAMETER OPEN_SCOPE statement CLOSE_SCOPE ELSE OPEN_SCOPE statement CLOSE_SCOPE\n");}
-            ;
-
-while_statement: WHILE OPEN_PARAMETER expression CLOSE_PARAMETER OPEN_SCOPE statements CLOSE_SCOPE {printf("while_statement -> WHILE OPEN_PARAMETER expression CLOSE_PARAMETER OPEN_SCOPE statements CLOSE_SCOPE\n");}
-                ;
-
-break_statement: BREAK END_STATEMENT {printf("break_statement -> BREAK END_STATEMENT\n");}
-                ;  
-
-continue_statement: CONTINUE END_STATEMENT {printf("continue_statement -> CONTINUE END_STATEMENT\n");}
-                ;
-
-expression: ALPHA {printf("expression -> ALPHA\n");}
-        | DIGIT {printf("expression -> DIGIT\n");}
-        | ALPHA OPEN_BRACKET DIGIT CLOSE_BRACKET {printf("expression -> ALPHA OPEN_BRACKET DIGIT CLOSE_BRACKET\n");}
-        | OPEN_PARAMETER binary_expression CLOSE_PARAMETER {printf("expression -> (binary_expression)\n");}
-        | input_statement {printf("expression -> input_statement\n");}
-        | function_call {printf("expression -> function_call\n");}
-        | binary_expression {printf("expression -> binary_expression\n");}
         ;
 
-binary_expression: expression ADDITION expression {printf("binary_expression -> expression ADDITION expression\n");}
-                | expression SUBTRACTION expression {printf("binary_expression -> expression SUBTRACTION expression\n");}
-                | expression MULTIPLICATION expression {printf("binary_expression -> expression MULTIPLICATION expression\n");}
-                | expression DIVISION expression {printf("binary_expression -> expression DIVISION expression\n");}
-                | expression MOD expression {printf("binary_expression -> expression MOD expression\n");}
-                | expression EQUALS_TO expression {printf("binary_expression -> expression EQUALS_TO expression\n");}
-                | expression NOT_EQUALS_TO expression {printf("binary_expression -> expression NOT_EQUALS_TO expression\n");}
-                | expression LESS_THAN expression {printf("binary_expression -> expression LESS_THAN expression\n");}
-                | expression LESS_THAN_OR_EQUAL_TO expression {printf("binary_expression -> expression LESS_THAN_OR_EQUAL_TO expression\n");}
-                | expression GREATER_THAN expression {printf("binary_expression -> expression GREATER_THAN expression\n");}
-                | expression GREATER_THAN_OR_EQUAL_TO expression {printf("binary_expression -> expression GREATER_THAN_OR_EQUAL_TO expression\n");}
-                ;
-
-args: %empty {printf("args -> epsilon\n");}
-    | arg repeat_args {printf("args -> arg repeat_args\n");}
-
-repeat_args: %empty {printf("repeat_args -> epsilon\n");}
-        | expression {printf("argument -> expression\n");}
-        | COMMA arg repeat_args {printf("repeat_args -> COMMA arg repeat_args\n");}
-
-arg: expression {printf("argument -> expression\n");}
+input_statement: 
+        READ INSERT ALPHA END_STATEMENT 
+        {
+                
+        }
         ;
 
-return_statement: RETURN expression END_STATEMENT {printf("return_statement -> RETURN expression END_STATEMENT\n");}
+if_statement: 
+        IF expression OPEN_SCOPE statements CLOSE_SCOPE else_statement 
+        {
+                
+        }
+        ;
 
+else_statement: 
+        ELSE OPEN_SCOPE statements CLOSE_SCOPE 
+        {
+
+        }
+        | %empty 
+        {
+
+        }
+        ;
+
+while_statement: 
+        WHILE OPEN_PARAMETER binary_expression CLOSE_PARAMETER OPEN_SCOPE statements CLOSE_SCOPE 
+        {
+
+        }
+        ;
+
+break_statement: 
+        BREAK END_STATEMENT 
+        {
+
+        }
+        ;  
+
+continue_statement: 
+        CONTINUE END_STATEMENT 
+        {
+
+        }
+        ;
+
+expression: 
+        DIGIT 
+        {
+
+        }    
+        | OPEN_PARAMETER binary_expression CLOSE_PARAMETER 
+        {
+
+        }  
+        | ALPHA 
+        {
+
+        }
+        | ALPHA OPEN_BRACKET add_expression CLOSE_BRACKET 
+        {
+
+        }
+        | function_call 
+        {
+
+        }
+        ;
+
+binary_expression: 
+        add_expression {printf("binary_expression -> add_expression\n");}
+        | binary_expression EQUALS_TO add_expression 
+        {
+                
+        }
+        | binary_expression NOT add_expression 
+        {
+                
+        }
+        | binary_expression LESS_THAN add_expression 
+        {
+                
+        }
+        | binary_expression LESS_THAN_OR_EQUAL_TO add_expression 
+        {
+
+        }
+        | binary_expression GREATER_THAN add_expression 
+        {
+
+        }
+        | binary_expression GREATER_THAN_OR_EQUAL_TO add_expression 
+        {
+
+        }
+        ;
+
+add_expression: mult_expression 
+        {
+
+        }
+        | add_expression ADDITION mult_expression 
+        {
+
+        }
+        | add_expression SUBTRACTION mult_expression 
+        {
+
+        }
+        ;
+
+mult_expression: 
+        base_expression 
+        {
+
+        }
+        | mult_expression MULTIPLICATION base_expression 
+        {
+
+        }
+        | mult_expression DIVISION base_expression 
+        {
+
+        }
+        | mult_expression MOD base_expression 
+        {
+
+        }
+        ;
+
+base_expression: 
+        expression 
+        {
+
+        }
+        ;
+
+assign_int: 
+        ALPHA ASSIGN add_expression END_STATEMENT 
+        {
+                
+        }
+        ;
+
+assign_array: 
+        ALPHA OPEN_BRACKET DIGIT CLOSE_BRACKET ASSIGN add_expression END_STATEMENT 
+        {
+                
+        }
+        ;
+
+function_call: 
+        ALPHA OPEN_PARAMETER param CLOSE_PARAMETER 
+        {
+        
+        }
+
+param: 
+        binary_expression params 
+        {
+
+        }
+        | %empty {printf("param -> epsilon\n");}
+        ;
+
+params: 
+        COMMA binary_expression params 
+        {
+                
+        }
+        | %empty 
+        {
+                
+        }
+        ;
+
+args: 
+        arg repeat_args 
+        {
+
+        } 
+        | %empty 
+        {
+
+        }
+        ;
+
+repeat_args: 
+        COMMA arg repeat_args 
+        {
+                
+        }
+        | %empty 
+        {
+                
+        }
+        ;
+
+arg: 
+        INTEGER ALPHA 
+        {
+                
+        }
+        ;
+
+return_statement: 
+        RETURN return_expression END_STATEMENT 
+        {
+                
+        }
+        ;
+
+return_expression: 
+        add_expression 
+        {
+                
+        }
+        | %empty 
+        {
+
+        }
+        ;
 
 %%
 

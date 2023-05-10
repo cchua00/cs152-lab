@@ -25,7 +25,6 @@ int column_number = 1;
 ">=" {column_number += yyleng; return GREATER_THAN_OR_EQUAL_TO;}
 "=" {column_number += yyleng; return ASSIGN;}
 "==" {column_number += yyleng; return EQUALS_TO;}
-"!=" {column_number += yyleng; return NOT_EQUALS_TO;}
 "!" {column_number += yyleng; return NOT;}
 int {column_number += yyleng; return INTEGER;}
 while {column_number += yyleng; return WHILE;}
@@ -56,5 +55,4 @@ endl {column_number += yyleng; return ENDL;}
 . {printf("Error at line %d. column %d: unrecognized symbol \"%s\"\n", line_number, column_number, yytext); exit(0);}
 
 %%
-
 
