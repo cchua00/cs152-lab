@@ -1,4 +1,4 @@
-func main() {
+int main() {
     
     int i;
 
@@ -8,4 +8,5 @@ func main() {
         cout << i;
     }
 
+    return 0;
 }

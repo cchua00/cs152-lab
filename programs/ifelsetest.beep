@@ -1,4 +1,4 @@
-func main() {
+int main() {
 
     int m;
     int n;
@@ -13,6 +13,6 @@ func main() {
         cout << m;
     }
 
-cout << o;
+    cout << o;
 
 }
