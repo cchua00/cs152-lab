@@ -1,5 +1,6 @@
 %{
 #include <stdio.h>
+#include <stdlib.h>
 #include "y.tab.h"
 
 extern FILE* yyin;
@@ -12,6 +13,17 @@ void yyerror(const char * s) {
 }
 %}
 
+struct CodeNode {
+        std::string code;
+        std::string name;
+}
+
+%union {
+        char *op_val;
+        struct CodeNode *node;
+}
+
+
 %error-verbose
 %start prog_start
 %token INVALID_TOKEN
@@ -20,63 +32,175 @@ void yyerror(const char * s) {
 %token ADDITION SUBTRACTION MULTIPLICATION DIVISION MOD ASSIGN
 %token EQUALS_TO NOT_EQUALS_TO LESS_THAN GREATER_THAN LESS_THAN_OR_EQUAL_TO GREATER_THAN_OR_EQUAL_TO NOT OPEN_PARAMETER
 %token CLOSE_PARAMETER OPEN_SCOPE CLOSE_SCOPE OPEN_BRACKET CLOSE_BRACKET END_STATEMENT COMMA ENDL
+%type <node> functions
+%type <node> function
+%type <node> declarations
+%type <node> declaration
 
 %%
-prog_start: %empty /* epsilon */ {printf("prog_start->epsilon\n");} 
-        | functions {printf("prog_start -> functions\n");}
+prog_start: 
+        %empty /* epsilon */ 
+        {
+        
+        } 
+        | functions 
+        {
+
+        }
         ;
 
-function_call: ALPHA OPEN_PARAMETER args CLOSE_PARAMETER {printf("function_call -> ALPHA OPEN_PARAMETER args CLOSE_PARAMETER END_STATEMENT\n");}
+function_call: 
+        ALPHA OPEN_PARAMETER args CLOSE_PARAMETER 
+        {
 
-functions: function {printf("functions -> function\n");}
-        | function functions {printf("functions -> function functions\n");}
+        }
+
+functions: 
+        function 
+        {
+
+        }
+        | function functions 
+        {
+
+        }
         ;
 
-function: INTEGER ALPHA OPEN_PARAMETER arguments CLOSE_PARAMETER OPEN_SCOPE statements CLOSE_SCOPE {printf("function -> INTEGER ALPHA OPEN_PARAMETER arguments CLOSE_PARAMETER OPEN_SCOPE statements CLOSE_SCOPE\n");}
-	    ;
+function: 
+        INTEGER ALPHA OPEN_PARAMETER arguments CLOSE_PARAMETER OPEN_SCOPE statements CLOSE_SCOPE 
+        {
 
-arguments: %empty {printf("arguments -> epsilon\n");}
-        | argument repeat_arguments {printf("arguments -> argument repeat_arguments\n");}
+        }
+	;
+
+arguments: 
+        %empty 
+        {
+
+        }
+        | argument repeat_arguments 
+        {
+
+        }
         ;
 
-repeat_arguments: %empty {printf("repeat_arguments -> epsilon\n");}
-                | COMMA argument repeat_arguments {printf("repeat_arguments -> COMMA argument repeat_arguments\n");}
-                ;
+repeat_arguments: 
+        %empty 
+        {
 
-argument: ALPHA {printf("argument -> ALPHA\n");}
-        | expression {printf("argument -> expression\n");}
-        | INTEGER ALPHA {printf("argument -> INTEGER ALPHA\n");}
-	    ;
-
-statements: %empty /* epsilon */ {printf("statements -> epsilon\n");}
-        | statement statements {printf("statements -> statement statements\n");}
+        }
+        | COMMA argument repeat_arguments {printf("repeat_arguments -> COMMA argument repeat_arguments\n");}
         ;
 
-statement: var_declaration {printf("statement -> var_declaration\n");}
-        | assign_statement {printf("statement -> assign_statement\n");}
-        | print_statement {printf("statement -> print_statement\n");}
-        | input_statement {printf("statement -> input_statement\n");}
-        | if_statement {printf("statement -> if_statement\n");}
-        | while_statement {printf("statement -> while_statement\n");}
-        | break_statement {printf("statement -> break_statement\n");}
-        | continue_statement {printf("statement -> continue_statement\n");}
-        | function_call {printf("statement -> function_call\n");}
-        | return_statement {printf("statement -> return_statement\n");}
+argument: 
+        ALPHA 
+        {
+
+        }
+        | expression 
+        {
+
+        }
+        | INTEGER ALPHA 
+        {
+
+        }
+	;
+
+statements: 
+        %empty /* epsilon */ 
+        {
+
+        }
+        | statement statements 
+        {
+
+        }
         ;
 
-var_declaration: INTEGER ALPHA END_STATEMENT {printf("var_declaration -> INTEGER ALPHA END_STATEMENT\n");}
-                | INTEGER ALPHA repeat_arguments END_STATEMENT {printf("var_declaration -> INTEGER ALPHA END_STATEMENT\n");}
-                | INTEGER ALPHA ASSIGN DIGIT END_STATEMENT {printf("var_declaration -> INTEGER ALPHA ASSIGN DIGIT END_STATEMENT\n");}
-                | INTEGER ALPHA OPEN_BRACKET DIGIT CLOSE_BRACKET END_STATEMENT {printf("var_declaration -> INTEGER ALPHA OPEN_BRACKET DIGIT CLOSE_BRACKET\n");}
-	            ;
+statement: 
+        var_declaration 
+        {
 
-assign_statement: ALPHA ASSIGN expression END_STATEMENT {printf("assign_statement -> ALPHA ASSIGN expression END_STATEMENT\n");}
-                | expression ASSIGN expression END_STATEMENT {printf("assign_statement -> expression ASSIGN expression END_STATEMENT\n");}
-                ;
+        }
+        | assign_statement 
+        {
 
-print_statement: WRITE EXTRACT ALPHA END_STATEMENT {printf("print_statement -> WRITE EXTRACT ALPHA END_STATEMENT\n");}
-                | WRITE EXTRACT ALPHA EXTRACT ENDL END_STATEMENT {printf("print_statement -> WRITE EXTRACT ALPHA EXTRACT ENDL END_STATEMENT\n");}
-                | WRITE EXTRACT DIGIT END_STATEMENT {printf("print_statement -> WRITE EXTRACT DIGIT END_STATEMENT\n");}
+        }
+        | print_statement 
+        {
+
+        }
+        | input_statement 
+        {
+
+        }
+        | if_statement 
+        {
+
+        }
+        | while_statement 
+        {
+
+        }
+        | break_statement 
+        {
+
+        }
+        | continue_statement 
+        {
+
+        }
+        | function_call 
+        {
+
+        }
+        | return_statement 
+        {
+
+        }
+        ;
+
+var_declaration: 
+        INTEGER ALPHA END_STATEMENT 
+        {
+
+        }
+        | INTEGER ALPHA repeat_arguments END_STATEMENT 
+        {
+
+        }
+        | INTEGER ALPHA ASSIGN DIGIT END_STATEMENT 
+        {
+
+        }
+        | INTEGER ALPHA OPEN_BRACKET DIGIT CLOSE_BRACKET END_STATEMENT 
+        {
+
+        }
+        ;
+
+assign_statement: 
+        ALPHA ASSIGN expression END_STATEMENT 
+        {
+
+        }
+        | expression ASSIGN expression END_STATEMENT 
+        {
+
+        }
+        ;
+
+print_statement: 
+        WRITE EXTRACT ALPHA END_STATEMENT 
+        {
+
+        }
+        | WRITE EXTRACT ALPHA EXTRACT ENDL END_STATEMENT {
+
+        }
+        | WRITE EXTRACT DIGIT END_STATEMENT 
+        {}
                 | WRITE EXTRACT DIGIT EXTRACT ENDL END_STATEMENT {printf("print_statement -> WRITE EXTRACT DIGIT EXTRACT ENDL END_STATEMENT\n");}
                 | WRITE EXTRACT ALPHA OPEN_BRACKET DIGIT CLOSE_BRACKET END_STATEMENT {printf("print_statement -> WRITE EXTRACT ALPHA OPEN_BRACKET DIGIT CLOSE_BRACKET END_STATEMENT\n");}
                 | WRITE EXTRACT ALPHA OPEN_BRACKET DIGIT CLOSE_BRACKET EXTRACT ENDL END_STATEMENT {printf("print_statement -> WRITE EXTRACT ALPHA OPEN_BRACKET DIGIT CLOSE_BRACKET EXTRACT ENDL END_STATEMENT\n");}
