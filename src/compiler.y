@@ -35,6 +35,7 @@ struct Function {
 
 std::vector <Function> symbol_table;
 
+//Symbol table - is just a list that detects semantic errors ie. Undeclared variable. So when you have an declared variable add it to a list and compare variables with the list to see if they are considered undeclared
 // remember that Bison is a bottom up parser: that it parses leaf nodes first before
 // parsing the parent nodes. So control flow begins at the leaf grammar nodes
 // and propagates up to the parents.
@@ -121,10 +122,14 @@ void print_symbol_table(void) {
 prog_start: 
         %empty /* epsilon */ 
         {
-        
+                CodeNode *node = new CodeNode;
+                $$ = node;
         } 
         | functions 
         {
+               CodeNode *node = $1; 
+                printf("All generated code: \n");
+                printf("%s\n", node->code.c_str();)      
 
         }
         ;
@@ -132,29 +137,49 @@ prog_start:
 functions: 
         function 
         {
-
+             //$$.code = $1.code
         }
         | function functions 
         {
-
+                CodeNode *func = $1;
+                CodeNode *funcs = $2;
+                std::string code= func->code + funcs->code;
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
         }
         ;
 
 function: 
         INTEGER ALPHA OPEN_PARAMETER args CLOSE_PARAMETER OPEN_SCOPE statements CLOSE_SCOPE 
         {
-
+                std::string func_name = $2;
+                CodeNode *params = $4;
+                CodeNode *stmts = $7;
+                std::string code = std::string("func ") + func_name + std::string("\n");
+                code += params->code;
+                code += stmts->code;
+                code += std::string("endfunc\n");
+                
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node; 
         }
-	      ;
+	;
 
 statements: 
         statement statements 
         {
-
+                CodeNode *stmt1 = $1;
+                CodeNode *stmt2 = $2;
+                CodeNode *node = new CodeNode;
+                node->code = stmt1->code + stmt2->code;
+                $$ = node; 
         }
         | %empty 
         {
-
+                CodeNode *node = new CodeNode;
+                $$ = node;
         }
         ;
 
