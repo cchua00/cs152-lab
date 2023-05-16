@@ -342,7 +342,7 @@ binary_expression:
         }
         | binary_expression GREATER_THAN_OR_EQUAL_TO add_expression 
         {
-
+                $$ = ">=";
         }
         ;
 
