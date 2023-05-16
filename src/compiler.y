@@ -145,7 +145,7 @@ function:
         {
 
         }
-	      ;
+	;
 
 statements: 
         statement statements 
@@ -349,34 +349,59 @@ binary_expression:
 add_expression: 
         mult_expression 
         {
-
+                $$ = $1;
         }
         | add_expression ADDITION mult_expression 
         {
-        
+                std::string temp = create_temp();
+                CodeNode *node = new CodeNode;
+                node->code = $1->code + $3->code + decl_temp_code(temp);
+                node->code = std::string("+ ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+                node->name = temp;
+                $$ = node;
         }
         | add_expression SUBTRACTION mult_expression 
         {
-
+                std::string temp = create_temp();
+                CodeNode *node = new CodeNode;
+                node->code = $1->code + $3->code + decl_temp_code(temp);
+                node->code = std::string("- ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+                node->name = temp;
+                $$ = node;
         }
         ;
 
 mult_expression: 
         base_expression 
         {
-
+                $$ = $1;
         }
         | mult_expression MULTIPLICATION base_expression 
         {
-
+                std::string temp = create_temp();
+                CodeNode *node = new CodeNode;
+                node->code = $1->code + $3->code + decl_temp_code(temp);
+                node->code = std::string("* ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+                node->name = temp;
+                $$ = node;
         }
         | mult_expression DIVISION base_expression 
         {
-
+                std::string temp = create_temp();
+                CodeNode *node = new CodeNode;
+                node->code = $1->code + $3->code + decl_temp_code(temp);
+                node->code = std::string("/ ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+                node->name = temp;
+                $$ = node;
         }
         | mult_expression MOD base_expression 
         {
-
+                std::string temp = create_temp();
+                CodeNode *node = new CodeNode;
+                node->code = $1->code + $3->code + decl_temp_code(temp);
+                node->code = std::string("% ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+                node->name = temp;
+                $$ = node;
         }
         ;
 
