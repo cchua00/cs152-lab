@@ -330,7 +330,7 @@ binary_expression:
         }
         | binary_expression LESS_THAN add_expression 
         {
-                
+                $$ = "<";
         }
         | binary_expression LESS_THAN_OR_EQUAL_TO add_expression 
         {
