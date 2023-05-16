@@ -513,3 +513,13 @@ void main(int argc, char** argv) {
 	}
 	yyparse();
 }
+
+bool has_main(){
+        bool TF = false;
+        for (int i = 0; i<symbol_table.size(); i++){
+                Function *f = &symbol_table[i];
+                if (f->name == "main")
+                        TF = true;
+        }
+        return TF;
+}
