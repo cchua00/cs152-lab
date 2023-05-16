@@ -406,7 +406,10 @@ expression:
 binary_expression: 
         add_expression 
         {
-        
+                CodeNode *int_declar = $1;
+                CodeNode *node = new CodeNode;
+                node->code = int_declar->code;
+                $$ = node;
         }
         | binary_expression EQUALS_TO add_expression 
         {
