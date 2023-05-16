@@ -105,12 +105,22 @@ void print_symbol_table(void) {
 %token CLOSE_PARAMETER OPEN_SCOPE CLOSE_SCOPE OPEN_BRACKET CLOSE_BRACKET END_STATEMENT COMMA ENDL
 %type <node> functions
 %type <node> function
+%type <node> function_call
 %type <node> statements
 %type <node> statement
-%type <node> int_declaration
-%type <node> array_declaration
 %type <node> assign_statement
 %type <node> else_statement
+%type <node> print_statement
+%type <node> input_statement
+%type <node> if_statement
+%type <node> while_statement
+%type <node> break_statement
+%type <node> continue_statement
+%type <node> return_statement
+%type <node> int_declaration
+%type <node> array_declaration
+%type <node> assign_int
+%type <node> assign_array
 %type <node> add_expression
 %type <node> args
 %type <op_val> ALPHA
@@ -191,47 +201,80 @@ statement:
         }
         | array_declaration 
         {
-
+                CodeNode *array_declar = $1;
+                CodeNode *node = new CodeNode;
+                node->code = array_declar->code;
+                $$ = node;
         }
         | print_statement 
         {
-
+                CodeNode *print_stmt = $1;
+                CodeNode *node = new CodeNode;
+                node->code = print_stmt->code;
+                $$ = node;
         }
         | input_statement 
         {
-
+                CodeNode *input_stmt = $1;
+                CodeNode *node = new CodeNode;
+                node->code = input_stmt->code;
+                $$ = node;
         }
         | if_statement 
         {
-
+                CodeNode *if_stmt = $1;
+                CodeNode *node = new CodeNode;
+                node->code = if_stmt->code;
+                $$ = node;
         }
         | while_statement 
         {
-
+                CodeNode *while_stmt = $1;
+                CodeNode *node = new CodeNode;
+                node->code = while_stmt->code;
+                $$ = node;
         }
         | break_statement 
         {
-
+                CodeNode *break_stmt = $1;
+                CodeNode *node = new CodeNode;
+                node->code = break_stmt->code;
+                $$ = node;
         }
         | continue_statement 
         {
-
+                CodeNode *continue_stmt = $1;
+                CodeNode *node = new CodeNode;
+                node->code = continue_stmt->code;
+                $$ = node;
         }
         | function_call 
         {
-
+                CodeNode *func_call = $1;
+                CodeNode *node = new CodeNode;
+                node->code = func_call->code;
+                $$ = node;
         }
         | return_statement 
         {
-
+                CodeNode *return_stmt = $1;
+                CodeNode *node = new CodeNode;
+                node->code = return_stmt->code;
+                $$ = node;
         }
         | assign_int 
         {
-
+                CodeNode *assign_int = $1;
+                CodeNode *node = new CodeNode;
+                node->code = assign_int->code;
+                $$ = node;
         }
         | assign_array 
         {
-
+                CodeNode *assign_array = $1;
+                CodeNode *node = new CodeNode;
+                node->code = assign_array->code;
+                $$ = node;
         }
         ;
 
@@ -256,7 +299,7 @@ array_declaration:
         {
                 std::string value = $2;
                 CodeNode *add_exp = $4;
-                std::string code = std::string("array ") + value + std::string("\n");
+                std::string code = std::string("array ") + value + std::string(" \n");
                 code += add_exp->code;
                 code += std::string("end array\n");
                 
