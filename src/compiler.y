@@ -322,7 +322,7 @@ binary_expression:
         }
         | binary_expression EQUALS_TO add_expression 
         {
-                
+                $$ = "==";
         }
         | binary_expression NOT add_expression 
         {
