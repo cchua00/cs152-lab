@@ -326,7 +326,7 @@ binary_expression:
         }
         | binary_expression NOT add_expression 
         {
-                
+                $$ = "!=";
         }
         | binary_expression LESS_THAN add_expression 
         {
