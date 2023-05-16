@@ -2,11 +2,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <string>
 #include <vector>
 #include "y.tab.h"
 extern FILE* yyin;
 extern int line_number;
 extern int column_number; 
+extern int yylex(void);
 
 void yyerror(const char * s) {
     printf("Error: On line %d, column %d: %s \n", line_number, column_number, s);
@@ -21,7 +23,7 @@ enum Type { Integer, Array };
 struct CodeNode {
         std::string code;
         std::string name;
-}
+};
 
 struct Symbol {
   std::string name;
@@ -114,8 +116,15 @@ void print_symbol_table(void) {
 %token CLOSE_PARAMETER OPEN_SCOPE CLOSE_SCOPE OPEN_BRACKET CLOSE_BRACKET END_STATEMENT COMMA ENDL
 %type <node> functions
 %type <node> function
-%type <node> declarations
-%type <node> declaration
+%type <node> statements
+%type <node> statement
+%type <node> int_declaration
+%type <node> array_declaration
+%type <node> assign_statement
+%type <node> else_statement
+%type <node> add_expression
+%type <node> args
+%type <op_val> ALPHA
 
 %%
 prog_start: 
@@ -502,7 +511,7 @@ return_expression:
         ;
 %%
 
-void main(int argc, char** argv) {
+int main(int argc, char** argv) {
 	if (argc >= 2) {
 		yyin = fopen(argv[1], "r");
 		if (yyin == NULL)
@@ -512,6 +521,8 @@ void main(int argc, char** argv) {
 		yyin = stdin;
 	}
 	yyparse();
+
+        return 1;
 }
 
 bool has_main(){
