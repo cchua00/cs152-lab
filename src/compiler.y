@@ -334,7 +334,7 @@ binary_expression:
         }
         | binary_expression LESS_THAN_OR_EQUAL_TO add_expression 
         {
-
+                $$ = "<=";
         }
         | binary_expression GREATER_THAN add_expression 
         {
