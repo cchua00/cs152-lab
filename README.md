@@ -1,4 +1,4 @@
-# CS-152-Project: Phase 0
+# CS-152-Project: Phase 3
 ## Language Name: BEEP-L
 ## Compiler Name: BEEP-LC
 ## Extension: .beep

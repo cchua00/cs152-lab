@@ -37,9 +37,6 @@ struct Function {
 
 std::vector <Function> symbol_table;
 
-// remember that Bison is a bottom up parser: that it parses leaf nodes first before
-// parsing the parent nodes. So control flow begins at the leaf grammar nodes
-// and propagates up to the parents.
 Function *get_function() {
   int last = symbol_table.size()-1;
   if (last < 0) {
@@ -51,10 +48,7 @@ Function *get_function() {
   return &symbol_table[last];
 }
 
-// find a particular variable using the symbol table.
-// grab the most recent function, and linear search to
-// find the symbol you are looking for.
-// you may want to extend "find" to handle different types of "Integer" vs "Array"
+
 bool find(std::string &value) {
   Function *f = get_function();
   for(int i=0; i < f->declarations.size(); i++) {
@@ -66,16 +60,12 @@ bool find(std::string &value) {
   return false;
 }
 
-// when you see a function declaration inside the grammar, add
-// the function name to the symbol table
 void add_function_to_symbol_table(std::string &value) {
   Function f; 
   f.name = value; 
   symbol_table.push_back(f);
 }
 
-// when you see a symbol declaration inside the grammar, add
-// the symbol name as well as some type information to the symbol table
 void add_variable_to_symbol_table(std::string &value, Type t) {
   Symbol s;
   s.name = value;
@@ -84,8 +74,6 @@ void add_variable_to_symbol_table(std::string &value, Type t) {
   f->declarations.push_back(s);
 }
 
-// a function to print out the symbol table to the screen
-// largely for debugging purposes.
 void print_symbol_table(void) {
   printf("symbol table:\n");
   printf("--------------------\n");
@@ -101,6 +89,7 @@ void print_symbol_table(void) {
 %}
 
 %union {
+
         char *op_val;
         struct CodeNode *node;
 }
@@ -116,12 +105,22 @@ void print_symbol_table(void) {
 %token CLOSE_PARAMETER OPEN_SCOPE CLOSE_SCOPE OPEN_BRACKET CLOSE_BRACKET END_STATEMENT COMMA ENDL
 %type <node> functions
 %type <node> function
+%type <node> function_call
 %type <node> statements
 %type <node> statement
-%type <node> int_declaration
-%type <node> array_declaration
 %type <node> assign_statement
 %type <node> else_statement
+%type <node> print_statement
+%type <node> input_statement
+%type <node> if_statement
+%type <node> while_statement
+%type <node> break_statement
+%type <node> continue_statement
+%type <node> return_statement
+%type <node> int_declaration
+%type <node> array_declaration
+%type <node> assign_int
+%type <node> assign_array
 %type <node> add_expression
 %type <node> args
 %type <op_val> ALPHA
@@ -129,11 +128,12 @@ void print_symbol_table(void) {
 %%
 prog_start: 
         %empty /* epsilon */ 
-        {
-        
-        } 
+        {} 
         | functions 
         {
+               CodeNode *node = $1; 
+                //printf("All generated code: \n");
+                printf("%s\n", node->code.c_str());      
 
         }
         ;
@@ -141,101 +141,179 @@ prog_start:
 functions: 
         function 
         {
-
+                CodeNode *func = $1;
+                std::string code = func->code;
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
         }
         | function functions 
         {
-
+                CodeNode *func = $1;
+                CodeNode *funcs = $2;
+                std::string code = func->code + std::string("\n") + funcs->code;
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
         }
         ;
 
 function: 
         INTEGER ALPHA OPEN_PARAMETER args CLOSE_PARAMETER OPEN_SCOPE statements CLOSE_SCOPE 
         {
-
+                std::string func_name = $2;
+                CodeNode *params = $4;
+                CodeNode *stmts = $7;
+                std::string code = std::string("func ") + func_name + std::string("\n");
+                //code += params->code;
+                //code += stmts->code;
+                code += std::string("endfunc");
+                
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node; 
         }
 	;
 
 statements: 
         statement statements 
         {
-
+                CodeNode *stmt1 = $1;
+                CodeNode *stmt2 = $2;
+                CodeNode *node = new CodeNode;
+                node->code = stmt1->code + stmt2->code;
+                $$ = node; 
         }
         | %empty 
         {
-
+                CodeNode *node = new CodeNode;
+                $$ = node;
         }
         ;
 
 statement: 
         int_declaration 
         {
-
+                CodeNode *int_declar = $1;
+                CodeNode *node = new CodeNode;
+                node->code = int_declar->code;
+                $$ = node;
         }
         | array_declaration 
         {
-
+                CodeNode *array_declar = $1;
+                CodeNode *node = new CodeNode;
+                node->code = array_declar->code;
+                $$ = node;
         }
         | print_statement 
         {
-
+                CodeNode *print_stmt = $1;
+                CodeNode *node = new CodeNode;
+                node->code = print_stmt->code;
+                $$ = node;
         }
         | input_statement 
         {
-
+                CodeNode *input_stmt = $1;
+                CodeNode *node = new CodeNode;
+                node->code = input_stmt->code;
+                $$ = node;
         }
         | if_statement 
         {
-
+                CodeNode *if_stmt = $1;
+                CodeNode *node = new CodeNode;
+                node->code = if_stmt->code;
+                $$ = node;
         }
         | while_statement 
         {
-
+                CodeNode *while_stmt = $1;
+                CodeNode *node = new CodeNode;
+                node->code = while_stmt->code;
+                $$ = node;
         }
         | break_statement 
         {
-
+                CodeNode *break_stmt = $1;
+                CodeNode *node = new CodeNode;
+                node->code = break_stmt->code;
+                $$ = node;
         }
         | continue_statement 
         {
-
+                CodeNode *continue_stmt = $1;
+                CodeNode *node = new CodeNode;
+                node->code = continue_stmt->code;
+                $$ = node;
         }
         | function_call 
         {
-
+                CodeNode *func_call = $1;
+                CodeNode *node = new CodeNode;
+                node->code = func_call->code;
+                $$ = node;
         }
         | return_statement 
         {
-
+                CodeNode *return_stmt = $1;
+                CodeNode *node = new CodeNode;
+                node->code = return_stmt->code;
+                $$ = node;
         }
         | assign_int 
         {
-
+                CodeNode *assign_int = $1;
+                CodeNode *node = new CodeNode;
+                node->code = assign_int->code;
+                $$ = node;
         }
         | assign_array 
         {
-
+                CodeNode *assign_array = $1;
+                CodeNode *node = new CodeNode;
+                node->code = assign_array->code;
+                $$ = node;
         }
         ;
 
 int_declaration: 
         INTEGER ALPHA assign_statement END_STATEMENT 
         {
+                CodeNode *assign_statement = $3;
+                std::string value = $2;
+                Type t = Integer;
+                add_variable_to_symbol_table(value, t);
 
+                std::string code = std::string(". ") + value + std::string("\n");
+                CodeNode *node = new CodeNode;
+                node->code = assign_statement->code;
+                node->code = code;
+                $$ = node;
         }
         ;
 
 array_declaration: 
         INTEGER ALPHA OPEN_BRACKET add_expression CLOSE_BRACKET assign_statement END_STATEMENT 
         {
-
+                std::string value = $2;
+                CodeNode *add_exp = $4;
+                std::string code = std::string("array ") + value + std::string(" \n");
+                code += add_exp->code;
+                code += std::string("end array\n");
+                
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node; 
         }
 	;
 
 assign_statement: 
         %empty 
         {
-
+                CodeNode *node = new CodeNode;
+                $$ = node;
         }
         | ASSIGN add_expression 
         {
@@ -276,7 +354,8 @@ else_statement:
         }
         | %empty 
         {
-
+                CodeNode *node = new CodeNode;
+                $$ = node;
         }
         ;
 
