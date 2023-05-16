@@ -530,3 +530,7 @@ std::string create_temp(){
         num += 1;
         return value;
 }
+
+std::string decl_temp_code(std::string &temp){
+        return std::string(". ") + temp + std::string("\n");
+}
