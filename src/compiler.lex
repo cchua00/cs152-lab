@@ -49,7 +49,6 @@ endl {column_number += yyleng; return ENDL;}
 
 [a-zA-Z0-9_]*[a-zA-Z0-9]* {
     column_number += yyleng;
-    
     char* token = new char[yyleng];
     strcpy(token, yytext);
     yylval.op_val = token; 
