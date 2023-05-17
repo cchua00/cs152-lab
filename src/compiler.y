@@ -406,65 +406,130 @@ expression:
 binary_expression: 
         add_expression 
         {
-        
+                CodeNode *int_declar = $1;
+                CodeNode *node = new CodeNode;
+                node->code = int_declar->code;
+                $$ = node;
         }
         | binary_expression EQUALS_TO add_expression 
         {
-                
+                std::string temp = create_temp();
+                CodeNode* node = new CodeNode;
+                node->code = $1->code + $3->code + decl_temp_code(temp);
+                node->code = std::string("== ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+                node->name = temp;
+                $$ = node;
+        
         }
         | binary_expression NOT add_expression 
         {
-                
+                std::string temp = create_temp();
+                CodeNode* node = new CodeNode;
+                node->code = $1->code + $3->code + decl_temp_code(temp);
+                node->code = std::string("!= ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+                node->name = temp;
+                $$ = node;
         }
         | binary_expression LESS_THAN add_expression 
         {
-                
+                std::string temp = create_temp();
+                CodeNode* node = new CodeNode;
+                node->code = $1->code + $3->code + decl_temp_code(temp);
+                node->code = std::string("< ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+                node->name = temp;
+                $$ = node;
         }
         | binary_expression LESS_THAN_OR_EQUAL_TO add_expression 
         {
-
+                std::string temp = create_temp();
+                CodeNode* node = new CodeNode;
+                node->code = $1->code + $3->code + decl_temp_code(temp);
+                node->code = std::string("<= ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+                node->name = temp;
+                $$ = node;
         }
         | binary_expression GREATER_THAN add_expression 
         {
-
+                std::string temp = create_temp();
+                CodeNode* node = new CodeNode;
+                node->code = $1->code + $3->code + decl_temp_code(temp);
+                node->code = std::string("> ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+                node->name = temp;
+                $$ = node;
         }
         | binary_expression GREATER_THAN_OR_EQUAL_TO add_expression 
         {
-
+                std::string temp = create_temp();
+                CodeNode* node = new CodeNode;
+                node->code = $1->code + $3->code + decl_temp_code(temp);
+                node->code = std::string(">= ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+                node->name = temp;
+                $$ = node;
         }
         ;
 
 add_expression: 
         mult_expression 
         {
-
+                CodeNode *int_declar = $1;
+                CodeNode *node = new CodeNode;
+                node->code = int_declar->code;
+                $$ = node;
         }
         | add_expression ADDITION mult_expression 
         {
-        
+                std::string temp = create_temp();
+                CodeNode *node = new CodeNode;
+                node->code = $1->code + $3->code + decl_temp_code(temp);
+                node->code = std::string("+ ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+                node->name = temp;
+                $$ = node;
         }
         | add_expression SUBTRACTION mult_expression 
         {
-
+                std::string temp = create_temp();
+                CodeNode *node = new CodeNode;
+                node->code = $1->code + $3->code + decl_temp_code(temp);
+                node->code = std::string("- ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+                node->name = temp;
+                $$ = node;
         }
         ;
 
 mult_expression: 
         base_expression 
         {
-
+                CodeNode *int_declar = $1;
+                CodeNode *node = new CodeNode;
+                node->code = int_declar->code;
+                $$ = node;
         }
         | mult_expression MULTIPLICATION base_expression 
         {
-
+                std::string temp = create_temp();
+                CodeNode *node = new CodeNode;
+                node->code = $1->code + $3->code + decl_temp_code(temp);
+                node->code = std::string("* ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+                node->name = temp;
+                $$ = node;
         }
         | mult_expression DIVISION base_expression 
         {
-
+                std::string temp = create_temp();
+                CodeNode *node = new CodeNode;
+                node->code = $1->code + $3->code + decl_temp_code(temp);
+                node->code = std::string("/ ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+                node->name = temp;
+                $$ = node;
         }
         | mult_expression MOD base_expression 
         {
-
+                std::string temp = create_temp();
+                CodeNode *node = new CodeNode;
+                node->code = $1->code + $3->code + decl_temp_code(temp);
+                node->code = std::string("% ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+                node->name = temp;
+                $$ = node;
         }
         ;
 
@@ -577,4 +642,25 @@ int main(int argc, char** argv) {
 	yyparse();
 
         return 1;
+}
+
+bool has_main(){
+        bool TF = false;
+        for (int i = 0; i<symbol_table.size(); i++){
+                Function *f = &symbol_table[i];
+                if (f->name == "main")
+                        TF = true;
+        }
+        return TF;
+}
+
+std::string create_temp(){
+        static int num = 0;
+        std::string value = "_temp" + std::to_string(num);
+        num += 1;
+        return value;
+}
+
+std::string decl_temp_code(std::string &temp){
+        return std::string(". ") + temp + std::string("\n");
 }
