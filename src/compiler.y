@@ -185,12 +185,13 @@ functions:
         ;
 
 function: 
-        INTEGER ALPHA OPEN_PARAMETER args CLOSE_PARAMETER OPEN_SCOPE statements CLOSE_SCOPE 
+        INTEGER ALPHA {std::string func_name = $2;add_function_to_symbol_table(func_name);} OPEN_PARAMETER args CLOSE_PARAMETER OPEN_SCOPE statements CLOSE_SCOPE 
         {
                 std::string func_name = $2;
-                CodeNode *params = $4;
-                CodeNode *stmts = $7;
+                CodeNode *params = $5;
+                CodeNode *stmts = $8;
                 std::string code = std::string("func ") + func_name + std::string("\n");
+                code += func_name;
                 //code += params->code;
                 //code += stmts->code;
                 code += std::string("endfunc");
@@ -325,9 +326,8 @@ array_declaration:
         {
                 std::string value = $2;
                 CodeNode *add_exp = $4;
-                std::string code = std::string("array ") + value + std::string(" \n");
+                std::string code = std::string(".[] ") + value + std::string(" \n");
                 code += add_exp->code;
-                code += std::string("end array\n");
                 
                 CodeNode *node = new CodeNode;
                 node->code = code;
@@ -343,7 +343,12 @@ assign_statement:
         }
         | ASSIGN add_expression 
         {
-
+                /*CodeNode *add_exp = $2;
+                node->code += add_exp->code;
+                
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node; */
         }
         ;
 
