@@ -351,16 +351,16 @@ print_statement:
         WRITE EXTRACT binary_expression END_STATEMENT 
         {
                 CodeNode* node = new CodeNode;
-                node->code = $2->code;
-                node->code = std::string(".> ") $2->name + std::string("\n");
+                node->code = $3->code;
+                node->code = std::string(".> ") + $3->code + std::string("\n");
                 $$ = node;
         }
         | 
         WRITE EXTRACT binary_expression EXTRACT ENDL END_STATEMENT 
         {
                 CodeNode* node = new CodeNode;
-                node->code = $2->code;
-                node->code = std::string(".> ") $2->name + std::string("\n");
+                node->code = $3->code;
+                node->code = std::string(".> ") + $3->code + std::string("\n");
                 $$ = node;
         }
         ;
