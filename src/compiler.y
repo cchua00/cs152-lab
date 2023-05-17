@@ -165,7 +165,7 @@ function:
                 CodeNode *params = $5;
                 CodeNode *stmts = $8;
                 std::string code = std::string("func ") + func_name + std::string("\n");
-                code += func_name;
+                //code += func_name;
                 //code += params->code;
                 //code += stmts->code;
                 code += std::string("endfunc");
