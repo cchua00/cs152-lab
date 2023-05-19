@@ -1,4 +1,5 @@
 %{
+#include <iostream> 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -124,7 +125,10 @@ void print_symbol_table(void) {
 %type <node> add_expression
 %type <node> args
 %type <op_val> ALPHA
-
+%type <node> mult_expression 
+%type <node> expression 
+%type <node> binary_expression 
+%type <node> base_expression  
 %%
 prog_start: 
         %empty /* epsilon */ 
@@ -316,41 +320,71 @@ assign_statement:
                 $$ = node;
         }
         | ASSIGN add_expression 
-        {
-
+        {	
+		CodeNode *node = new CodeNode;
+		CodeNode *add_expression = $2;
+		node->code = add_expression -> code; 
+		node->code = std::string("=") + $2->code;  
+		$$ = node;				        
         }
         ;
 
 print_statement: 
         WRITE EXTRACT binary_expression END_STATEMENT 
         {
-
+		CodeNode* node = new CodeNode; 
+		CodeNode* binary_expression = $3; 
+		std::string code = std::string(".>") + binary_expression->code + std::string("\n"); 
+                node->code = code;   		
+		$$ = node; 	
+					
         }
         | 
         WRITE EXTRACT binary_expression EXTRACT ENDL END_STATEMENT 
         {
-
+		CodeNode* node = new CodeNode; 
+		CodeNode* binary_expression = $3;   
+		std::string code = std::string(".>") + binary_expression->code + std::string("\n"); 
+                node->code = code;
+		$$ = node;
+		
         }
         ;
 
 input_statement: 
         READ INSERT ALPHA END_STATEMENT 
         {
-                
+         	CodeNode* node = new CodeNode; 
+		std::string value = $3; 
+		std::string code = std::string(".<") + value + std::string("\n"); 
+		node->code = code; 
+		$$ = node;        
         }
         ;
 
 if_statement: 
         IF expression OPEN_SCOPE statements CLOSE_SCOPE else_statement 
         {
-                
+         	CodeNode* node = new CodeNode; 
+		CodeNode* expression = $2; 
+		CodeNode* statements = $4; 
+		CodeNode* else_statement = $6; 
+	 	std::string code = std::string("if ") + expression + std::string("\n") + statements + std::string("else\n") + else_statement + std::string("endif\n");
+		node->code = code; 
+		$$ = node;         
         }
         ;
 
 else_statement: 
         ELSE OPEN_SCOPE statements CLOSE_SCOPE 
         {
-
+		CodeNode* node = new CodeNode; 
+		CodeNode* statements = $3;
+		std::string code = std::string("else\n"); 
+		code += statements; 
+		code += std::string("endif\n");  
+		node->code = code; 
+		$$ = node; 
         }
         | %empty 
         {
@@ -362,44 +396,81 @@ else_statement:
 while_statement: 
         WHILE OPEN_PARAMETER binary_expression CLOSE_PARAMETER OPEN_SCOPE statements CLOSE_SCOPE 
         {
-
+		CodeNode* statements = $6; 	
+                CodeNode* binary_expression = $3;
+                code += ":= beginloop\n"; 
+                code += ".temp\n"; 
+                code += std::string("< temp, ") + binary_expression + std::string("\n"); 
+                code += "?:= loopbody, temp\n"; 
+                code += ":= endloop\n"; 
+                code += ": loopbody\n"; 
+                code += statements->code; 
+                code += ":= beginloop\n"; 
+                code += ": endloop\n"; 
+                CodeNode* node = new CodeNode; 
+                node->code = code; 
+                $$ = node;
         }
         ;
 
 break_statement: 
         BREAK END_STATEMENT 
-        {
-
+        { 	
+		
+		CodeNode* node = new CodeNode; 
+		node->code = ":= endloop\n";  
+		$$ = node; 		
         }
         ;  
 
 continue_statement: 
         CONTINUE END_STATEMENT 
         {
-
+		CodeNode* node = new CodeNode; 
+		node->code = ":= beginloop\n"; 
+		$$ = node; 
         }
         ;
 
 expression: 
         DIGIT 
         {
-
+                CodeNode* node = new CodeNode;
+	 	CodeNode* value = new CodeNode;
+		std::string code = std::to_string(value); 
+		node->code = code; 
+		$$ = node;
+		
         }    
         | OPEN_PARAMETER binary_expression CLOSE_PARAMETER 
         {
-
+		CodeNode* binary_expression = $2; 
+		CodeNode* nde = new CodeNode; 
+		node->code = binary_expression->code; 
+		$$ = node; 
         }  
         | ALPHA 
         {
-
+		std::string value = $1; 
+		CodeNode* node = new CodeNode; 
+		node->code = value; 
+		$$ = node; 
         }
         | ALPHA OPEN_BRACKET add_expression CLOSE_BRACKET 
         {
-
+		std::string value = $1; 
+		CodeNode* add_expression  $3; 
+		std::string code = value + add_expression->code + "]"; 
+		CodeNode* node = new CodeNode; 
+		node->code = code; 
+		$$ = node; 
         }
         | function_call 
         {
-
+		CodeNode* function_call = $1; 
+		CodeNode* node = new CodeNode; 
+		node->code = function_call->code; 
+		$$ = node; 
         }
         ;
 
@@ -499,10 +570,13 @@ add_expression:
 mult_expression: 
         base_expression 
         {
-                CodeNode *int_declar = $1;
-                CodeNode *node = new CodeNode;
-                node->code = int_declar->code;
-                $$ = node;
+         	CodeNode* int_declar = $1; 
+	        CodeNode* node = new CodeNode; 
+		node->code = int_declar->code; 
+		$$ = node; 
+                
+                
+         
         }
         | mult_expression MULTIPLICATION base_expression 
         {
@@ -536,7 +610,10 @@ mult_expression:
 base_expression: 
         expression 
         {
-
+		CodeNode* expression = $1;
+                CodeNode* node = new CodeNode;
+                node->code = expression->code;
+                $$ = node;
         }
         ;
 
