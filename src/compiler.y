@@ -570,31 +570,47 @@ mult_expression:
         }
         ;
 
+//alex does below this
 base_expression: 
-        expression 
+        expression
         {
-
+                
         }
         ;
 
 assign_int: 
         ALPHA ASSIGN add_expression END_STATEMENT 
         {
-                
-        }
+                std::string temp = create_temp();
+                CodeNode *node = new CodeNode;
+                node->code = $1->code + $3->code + decl_temp_code(temp);
+                node->code = std::string("= ") + temp + std::string(", ") + $3->name + std::string("\n");
+                node->name = temp;
+                $$ = node;
+        }       
         ;
 
 assign_array: 
         ALPHA OPEN_BRACKET DIGIT CLOSE_BRACKET ASSIGN add_expression END_STATEMENT 
         {
-                
+                std::string temp = create_temp();
+                CodeNode *node = new CodeNode;
+                node->code = $1->code + $3->code + $6->code + decl_temp_code(temp);
+                node->code = std::string("[]= ") + temp + std::string(", ") + $3->name + std::string(", ") + $6->name + std::string("\n");
+                node->name = temp;
+                $$ = node;
         }
         ;
 
 function_call: 
         ALPHA OPEN_PARAMETER param CLOSE_PARAMETER 
         {
-        
+                std::string temp = create_temp();
+                CodeNode *node = new CodeNode;
+                node->code = $1->code + decl_temp_code(temp);
+                node->code = std::string("call ") + $1->name + std::string(", ") + temp + std::string("\n");
+                node->name = temp;
+                $$ = node;
         }
 
 param: 
@@ -604,7 +620,8 @@ param:
         }
         | %empty 
         {
-        
+                CodeNode *node = new CodeNode;
+                $$ = node;
         }
         ;
 
@@ -615,7 +632,8 @@ params:
         }
         | %empty 
         {
-                
+                CodeNode *node = new CodeNode;
+                $$ = node;
         }
         ;
 
@@ -626,7 +644,8 @@ args:
         } 
         | %empty 
         {
-
+                CodeNode *node = new CodeNode;
+                $$ = node;
         }
         ;
 
@@ -637,7 +656,8 @@ repeat_args:
         }
         | %empty 
         {
-                
+                CodeNode *node = new CodeNode;
+                $$ = node;
         }
         ;
 
@@ -651,7 +671,10 @@ arg:
 return_statement: 
         RETURN return_expression END_STATEMENT 
         {
-                
+                CodeNode *node = new CodeNode;
+                node->code = $2->code + decl_temp_code(temp);
+                node->code = std::string("ret ") + $2->name + std::string("\n");
+                $$ = node;
         }
         ;
 
@@ -662,7 +685,8 @@ return_expression:
         }
         | %empty 
         {
-
+                CodeNode *node = new CodeNode;
+                $$ = node;
         }
         ;
 %%
