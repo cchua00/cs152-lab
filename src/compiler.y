@@ -151,6 +151,10 @@ std::string decl_temp_code(std::string &temp){
 %type <node> expression 
 %type <node> binary_expression 
 %type <node> base_expression  
+%type <node> param
+%type <node> params
+%type <node> repeat_args
+%type <node> return_expression
 %%
 prog_start: 
         %empty /* epsilon */ 
@@ -343,7 +347,7 @@ assign_statement:
         }
         | ASSIGN add_expression 
         {	
-		            CodeNode *node = new CodeNode;
+		CodeNode *node = new CodeNode;
                 CodeNode *add_expression = $2;
 
                 std::string code = std::string("=");
@@ -647,36 +651,36 @@ base_expression:
 assign_int: 
         ALPHA ASSIGN add_expression END_STATEMENT 
         {
-                std::string temp = create_temp();
+                /*std::string temp = create_temp();
                 CodeNode *node = new CodeNode;
                 node->code = $1->code + $3->code + decl_temp_code(temp);
                 node->code = std::string("= ") + temp + std::string(", ") + $3->name + std::string("\n");
                 node->name = temp;
-                $$ = node;
+                $$ = node;*/
         }       
         ;
 
 assign_array: 
         ALPHA OPEN_BRACKET DIGIT CLOSE_BRACKET ASSIGN add_expression END_STATEMENT 
         {
-                std::string temp = create_temp();
+                /*std::string temp = create_temp();
                 CodeNode *node = new CodeNode;
                 node->code = $1->code + $3->code + $6->code + decl_temp_code(temp);
                 node->code = std::string("[]= ") + temp + std::string(", ") + $3->name + std::string(", ") + $6->name + std::string("\n");
                 node->name = temp;
-                $$ = node;
+                $$ = node;*/
         }
         ;
 
 function_call: 
         ALPHA OPEN_PARAMETER param CLOSE_PARAMETER 
         {
-                std::string temp = create_temp();
+                /*std::string temp = create_temp();
                 CodeNode *node = new CodeNode;
                 node->code = $1->code + decl_temp_code(temp);
                 node->code = std::string("call ") + $1->name + std::string(", ") + temp + std::string("\n");
                 node->name = temp;
-                $$ = node;
+                $$ = node;*/
         }
 
 param: 
@@ -737,10 +741,10 @@ arg:
 return_statement: 
         RETURN return_expression END_STATEMENT 
         {
-                CodeNode *node = new CodeNode;
+                /*CodeNode *node = new CodeNode;
                 node->code = $2->code + decl_temp_code(temp);
                 node->code = std::string("ret ") + $2->name + std::string("\n");
-                $$ = node;
+                $$ = node;*/
         }
         ;
 
