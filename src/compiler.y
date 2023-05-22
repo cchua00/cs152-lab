@@ -151,6 +151,7 @@ std::string decl_temp_code(std::string &temp){
 %type <node> mult_expression
 %type <node> base_expression
 
+
 %%
 prog_start: 
         %empty /* epsilon */ 
@@ -191,7 +192,7 @@ function:
                 CodeNode *params = $5;
                 CodeNode *stmts = $8;
                 std::string code = std::string("func ") + func_name + std::string("\n");
-                //code += func_name;
+                //code += func_name; //not needed
                 //code += params->code;
                 //code += stmts->code;
                 code += std::string("endfunc");
@@ -306,9 +307,9 @@ statement:
         ;
 
 int_declaration: 
-        INTEGER ALPHA assign_statement END_STATEMENT 
+        INTEGER ALPHA {std::string var_name = $2;Type type = Integer; add_variable_to_symbol_table(var_name, type);} assign_statement END_STATEMENT 
         {
-                CodeNode *assign_statement = $3;
+                CodeNode *assign_statement = $4;
                 std::string value = $2;
                 Type t = Integer;
                 add_variable_to_symbol_table(value, t);
@@ -343,19 +344,17 @@ assign_statement:
         }
         | ASSIGN add_expression 
         {
-                /*CodeNode *add_exp = $2;
-                node->code += add_exp->code;
-                
+                CodeNode *add_exp = $2;
                 CodeNode *node = new CodeNode;
-                node->code = code;
-                $$ = node; */
+                node->code += add_exp->code;
+                $$ = node; 
         }
         ;
 
 print_statement: 
         WRITE EXTRACT binary_expression END_STATEMENT 
         {
-                CodeNode* node = new CodeNode;
+                CodeNode *node = new CodeNode;
                 node->code = $3->code;
                 node->code = std::string(".> ") + $3->code + std::string("\n");
                 $$ = node;
@@ -363,7 +362,7 @@ print_statement:
         | 
         WRITE EXTRACT binary_expression EXTRACT ENDL END_STATEMENT 
         {
-                CodeNode* node = new CodeNode;
+                CodeNode *node = new CodeNode;
                 node->code = $3->code;
                 node->code = std::string(".> ") + $3->code + std::string("\n");
                 $$ = node;
@@ -508,9 +507,9 @@ binary_expression:
 add_expression: 
         mult_expression 
         {
-                CodeNode *int_declar = $1;
+                CodeNode *mult_expression = $1;
                 CodeNode *node = new CodeNode;
-                node->code = int_declar->code;
+                node->code = mult_expression->code;
                 $$ = node;
         }
         | add_expression ADDITION mult_expression 
@@ -536,9 +535,9 @@ add_expression:
 mult_expression: 
         base_expression 
         {
-                CodeNode *int_declar = $1;
+                CodeNode *base_expression = $1;
                 CodeNode *node = new CodeNode;
-                node->code = int_declar->code;
+                node->code = base_expression->code;
                 $$ = node;
         }
         | mult_expression MULTIPLICATION base_expression 
