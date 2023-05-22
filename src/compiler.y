@@ -195,7 +195,7 @@ function:
                 CodeNode *params = $5;
                 CodeNode *stmts = $8;
                 std::string code = std::string("func ") + func_name + std::string("\n");
-                code += func_name;
+                //code += func_name; //not needed
                 //code += params->code;
                 //code += stmts->code;
                 code += std::string("endfunc");
@@ -310,9 +310,9 @@ statement:
         ;
 
 int_declaration: 
-        INTEGER ALPHA assign_statement END_STATEMENT 
+        INTEGER ALPHA {std::string var_name = $2;Type type = Integer; add_variable_to_symbol_table(var_name, type);} assign_statement END_STATEMENT 
         {
-                CodeNode *assign_statement = $3;
+                CodeNode *assign_statement = $4;
                 std::string value = $2;
                 Type t = Integer;
                 add_variable_to_symbol_table(value, t);
@@ -347,7 +347,7 @@ assign_statement:
         }
         | ASSIGN add_expression 
         {	
-		CodeNode *node = new CodeNode;
+		            CodeNode *node = new CodeNode;
                 CodeNode *add_expression = $2;
 
                 std::string code = std::string("=");
@@ -525,7 +525,7 @@ binary_expression:
         | binary_expression NOT add_expression 
         {
                 std::string temp = create_temp();
-                CodeNode* node = new CodeNode;
+                CodeNode *node = new CodeNode;
                 node->code = $1->code + $3->code + decl_temp_code(temp);
                 node->code = std::string("!= ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
                 node->name = temp;
@@ -534,7 +534,7 @@ binary_expression:
         | binary_expression LESS_THAN add_expression 
         {
                 std::string temp = create_temp();
-                CodeNode* node = new CodeNode;
+                CodeNode *node = new CodeNode;
                 node->code = $1->code + $3->code + decl_temp_code(temp);
                 node->code = std::string("< ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
                 node->name = temp;
@@ -543,7 +543,7 @@ binary_expression:
         | binary_expression LESS_THAN_OR_EQUAL_TO add_expression 
         {
                 std::string temp = create_temp();
-                CodeNode* node = new CodeNode;
+                CodeNode *node = new CodeNode;
                 node->code = $1->code + $3->code + decl_temp_code(temp);
                 node->code = std::string("<= ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
                 node->name = temp;
@@ -552,7 +552,7 @@ binary_expression:
         | binary_expression GREATER_THAN add_expression 
         {
                 std::string temp = create_temp();
-                CodeNode* node = new CodeNode;
+                CodeNode *node = new CodeNode;
                 node->code = $1->code + $3->code + decl_temp_code(temp);
                 node->code = std::string("> ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
                 node->name = temp;
@@ -561,7 +561,7 @@ binary_expression:
         | binary_expression GREATER_THAN_OR_EQUAL_TO add_expression 
         {
                 std::string temp = create_temp();
-                CodeNode* node = new CodeNode;
+                CodeNode *node = new CodeNode;
                 node->code = $1->code + $3->code + decl_temp_code(temp);
                 node->code = std::string(">= ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
                 node->name = temp;
@@ -600,13 +600,10 @@ add_expression:
 mult_expression: 
         base_expression 
         {
-         	CodeNode* int_declar = $1; 
-	        CodeNode* node = new CodeNode; 
-		node->code = int_declar->code; 
-		$$ = node; 
-                
-                
-         
+                CodeNode *base_expression = $1;
+                CodeNode *node = new CodeNode;
+                node->code = base_expression->code;
+                $$ = node;
         }
         | mult_expression MULTIPLICATION base_expression 
         {
