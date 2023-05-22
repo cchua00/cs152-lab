@@ -117,12 +117,10 @@ std::string decl_temp_code(std::string &temp){
         struct CodeNode *node;
 }
 
-
 %error-verbose
 %start prog_start
 
 %token WRITE READ WHILE BREAK CONTINUE IF ELSE INSERT EXTRACT RETURN INTEGER
-%token ALPHA DIGIT
 %token ADDITION SUBTRACTION MULTIPLICATION DIVISION MOD ASSIGN
 %token EQUALS_TO LESS_THAN GREATER_THAN LESS_THAN_OR_EQUAL_TO GREATER_THAN_OR_EQUAL_TO NOT OPEN_PARAMETER
 %token CLOSE_PARAMETER OPEN_SCOPE CLOSE_SCOPE OPEN_BRACKET CLOSE_BRACKET END_STATEMENT COMMA ENDL
@@ -146,7 +144,8 @@ std::string decl_temp_code(std::string &temp){
 %type <node> assign_array
 %type <node> add_expression
 %type <node> args
-%type <op_val> ALPHA
+%token <op_val> ALPHA
+%token <op_val> DIGIT
 %type <node> mult_expression 
 %type <node> expression 
 %type <node> binary_expression 
@@ -156,6 +155,7 @@ std::string decl_temp_code(std::string &temp){
 %type <node> repeat_args
 %type <node> return_expression
 %%
+
 prog_start: 
         %empty /* epsilon */ 
         {} 
@@ -197,7 +197,7 @@ function:
                 std::string code = std::string("func ") + func_name + std::string("\n");
                 //code += func_name; //not needed
                 //code += params->code;
-                //code += stmts->code;
+                code += stmts->code;
                 code += std::string("endfunc");
                 
                 CodeNode *node = new CodeNode;
@@ -319,8 +319,9 @@ int_declaration:
 
                 std::string code = std::string(". ") + value + std::string("\n");
                 CodeNode *node = new CodeNode;
-                node->code = assign_statement->code;
                 node->code += code;
+                node->code += assign_statement->code;
+                node->code = code;
                 $$ = node;
         }
         ;
@@ -340,20 +341,20 @@ array_declaration:
 	;
 
 assign_statement: 
-        %empty 
-        {
-                CodeNode *node = new CodeNode;
-                $$ = node;
-        }
-        | ASSIGN add_expression 
+        ASSIGN add_expression 
         {	
-		            CodeNode *node = new CodeNode;
+		CodeNode *node = new CodeNode;
                 CodeNode *add_expression = $2;
 
                 std::string code = std::string("=");
                 code += add_expression->code;
                 node->code = code;    
                 $$ = node; 
+        }
+        | %empty 
+        {
+                CodeNode *node = new CodeNode;
+                $$ = node;
         }
         ;
 
@@ -391,17 +392,17 @@ input_statement:
 if_statement: 
         IF expression OPEN_SCOPE statements CLOSE_SCOPE else_statement 
         {
-         	     CodeNode *node = new CodeNode; 
-		           CodeNode *expr = $2; 
-		           CodeNode *stmts = $4; 
-		           CodeNode *else_statement = $6; 
-	 	
-               std::string code = std::string("if ") + std::string("\n")  + std::string("else\n") + std::string("endif\n");
-               code += expr->code;
-               code += stmts->code;
-               code += else_statement->code;
-               node->code = code; 
-		           $$ = node;         
+                CodeNode *node = new CodeNode; 
+                CodeNode *expr = $2; 
+                CodeNode *stmts = $4; 
+                CodeNode *else_statement = $6; 
+
+                std::string code = std::string("if ") + std::string("\n")  + std::string("else\n") + std::string("endif\n");
+                code += expr->code;
+                code += stmts->code;
+                code += else_statement->code;
+                node->code = code; 
+                $$ = node;         
         }
         ;
 
@@ -446,7 +447,6 @@ while_statement:
 break_statement: 
         BREAK END_STATEMENT 
         { 	
-		
 		CodeNode* node = new CodeNode; 
 		node->code = std::string(":= endloop\n");  
 		$$ = node; 		
@@ -465,12 +465,10 @@ continue_statement:
 expression: 
         DIGIT 
         {
-                /*CodeNode* node = new CodeNode;
-	 	CodeNode* value = new CodeNode;
-		std::string code = to_string(value); 
-		node->code = code; 
-		$$ = node;*/
-		
+                CodeNode* node = new CodeNode;
+                std::string digit = $1;
+                node->code = digit;
+                $$ = node;
         }    
         | OPEN_PARAMETER binary_expression CLOSE_PARAMETER 
         {
@@ -481,16 +479,16 @@ expression:
         }  
         | ALPHA 
         {
-		std::string value = $1; 
-		CodeNode* node = new CodeNode; 
-		node->code = value; 
-		$$ = node; 
+                CodeNode* node = new CodeNode;
+                std::string alpha = $1;
+                node->code = alpha;
+                $$ = node;
         }
         | ALPHA OPEN_BRACKET add_expression CLOSE_BRACKET 
         {
 		std::string value = $1; 
-		CodeNode* add_expression  $3; 
-		std::string code = value + add_expression->code + std::string("]"); 
+		CodeNode* add_expression = $3; 
+		std::string code = value + std::string("[") + add_expression->code + std::string("]"); 
 		CodeNode* node = new CodeNode; 
 		node->code = code; 
 		$$ = node; 
@@ -638,7 +636,7 @@ mult_expression:
 base_expression: 
         expression
         {
-		            CodeNode* expression = $1;
+	        CodeNode* expression = $1;
                 CodeNode* node = new CodeNode;
                 node->code = expression->code;
                 $$ = node;
@@ -648,12 +646,14 @@ base_expression:
 assign_int: 
         ALPHA ASSIGN add_expression END_STATEMENT 
         {
-                /*std::string temp = create_temp();
+                std::string value = $1;
+                CodeNode *addexp = $3;
                 CodeNode *node = new CodeNode;
-                node->code = $1->code + $3->code + decl_temp_code(temp);
-                node->code = std::string("= ") + temp + std::string(", ") + $3->name + std::string("\n");
-                node->name = temp;
-                $$ = node;*/
+
+                node->code = addexp->code;
+                std::string code = std::string("= ") + value + std::string(", ") + addexp->code + std::string("\n");
+                node->code = code;
+                $$ = node;
         }       
         ;
 
