@@ -5,6 +5,7 @@
 #include <string.h>
 #include <string>
 #include <iostream>
+#include <sstream> 
 #include <vector>
 #include "y.tab.h"
 extern FILE* yyin;
@@ -99,9 +100,11 @@ bool has_main(){
         return TF;
 }
 
-std::string create_temp(){
+std::string create_temp() {
         static int num = 0;
-        std::string value = "_temp" + num;
+        std::ostringstream ss;
+        ss << num;
+        std::string value = "temp" + ss.str();
         num += 1;
         return value;
 }
@@ -738,10 +741,10 @@ arg:
 return_statement: 
         RETURN return_expression END_STATEMENT 
         {
-                /*CodeNode *node = new CodeNode;
-                node->code = $2->code + decl_temp_code(temp);
-                node->code = std::string("ret ") + $2->name + std::string("\n");
-                $$ = node;*/
+                CodeNode *node = new CodeNode;
+                CodeNode *ret = new CodeNode;
+                node->code = std::string("ret ") + ret->code + std::string("\n");
+                $$ = node;
         }
         ;
 
