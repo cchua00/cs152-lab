@@ -87,6 +87,28 @@ void print_symbol_table(void) {
   printf("--------------------\n");
 }
 
+bool has_main(){
+        bool TF = false;
+        for (int i = 0; i<symbol_table.size(); i++){
+                Function *f = &symbol_table[i];
+                if (f->name == "main")
+                        TF = true;
+        }
+        return TF;
+}
+
+std::string create_temp(){
+        static int num = 0;
+        std::string value = "_temp" + num;
+        num += 1;
+        return value;
+}
+
+std::string decl_temp_code(std::string &temp){
+        return std::string(". ") + temp + std::string("\n");
+}
+
+
 %}
 
 %union {
@@ -293,7 +315,7 @@ int_declaration:
                 std::string code = std::string(". ") + value + std::string("\n");
                 CodeNode *node = new CodeNode;
                 node->code = assign_statement->code;
-                node->code = code;
+                node->code += code;
                 $$ = node;
         }
         ;
@@ -322,10 +344,12 @@ assign_statement:
         | ASSIGN add_expression 
         {	
 		CodeNode *node = new CodeNode;
-		CodeNode *add_expression = $2;
-		node->code = add_expression -> code; 
-		node->code = std::string("=") + $2->code;  
-		$$ = node;				        
+                CodeNode *add_expression = $2;
+
+                std::string code = std::string("=");
+                code += add_expression->code;
+                node->code = code;    
+                $$ = node; 
         }
         ;
 
@@ -365,12 +389,16 @@ input_statement:
 if_statement: 
         IF expression OPEN_SCOPE statements CLOSE_SCOPE else_statement 
         {
-         	CodeNode* node = new CodeNode; 
-		CodeNode* expression = $2; 
-		CodeNode* statements = $4; 
-		CodeNode* else_statement = $6; 
-	 	std::string code = std::string("if ") + expression + std::string("\n") + statements + std::string("else\n") + else_statement + std::string("endif\n");
-		node->code = code; 
+         	CodeNode *node = new CodeNode; 
+		CodeNode *expr = $2; 
+		CodeNode *stmts = $4; 
+		CodeNode *else_statement = $6; 
+	 	
+                std::string code = std::string("if ") + std::string("\n")  + std::string("else\n") + std::string("endif\n");
+                code += expr->code;
+                code += stmts->code;
+                code += else_statement->code;
+                node->code = code; 
 		$$ = node;         
         }
         ;
@@ -379,9 +407,9 @@ else_statement:
         ELSE OPEN_SCOPE statements CLOSE_SCOPE 
         {
 		CodeNode* node = new CodeNode; 
-		CodeNode* statements = $3;
+		CodeNode* stmts = $3;
 		std::string code = std::string("else\n"); 
-		code += statements; 
+		code += stmts->code; 
 		code += std::string("endif\n");  
 		node->code = code; 
 		$$ = node; 
@@ -396,20 +424,20 @@ else_statement:
 while_statement: 
         WHILE OPEN_PARAMETER binary_expression CLOSE_PARAMETER OPEN_SCOPE statements CLOSE_SCOPE 
         {
-		CodeNode* statements = $6; 	
+		/*CodeNode* statements = $6; 	
                 CodeNode* binary_expression = $3;
-                code += ":= beginloop\n"; 
-                code += ".temp\n"; 
-                code += std::string("< temp, ") + binary_expression + std::string("\n"); 
-                code += "?:= loopbody, temp\n"; 
-                code += ":= endloop\n"; 
-                code += ": loopbody\n"; 
+                code += std::string(":= beginloop\n"); 
+                code += std::strig(".temp\n"); 
+                code += std::string("< temp, ") + std::string("\n"); 
+                code += std::string("?:= loopbody, temp\n"); 
+                code += std::string(":= endloop\n"); 
+                code += std::string(": loopbody\n"); 
                 code += statements->code; 
-                code += ":= beginloop\n"; 
-                code += ": endloop\n"; 
+                code += std::string(":= beginloop\n"); 
+                code += std::string(": endloop\n"); 
                 CodeNode* node = new CodeNode; 
                 node->code = code; 
-                $$ = node;
+                $$ = node;*/
         }
         ;
 
@@ -418,7 +446,7 @@ break_statement:
         { 	
 		
 		CodeNode* node = new CodeNode; 
-		node->code = ":= endloop\n";  
+		node->code = std::string(":= endloop\n");  
 		$$ = node; 		
         }
         ;  
@@ -427,7 +455,7 @@ continue_statement:
         CONTINUE END_STATEMENT 
         {
 		CodeNode* node = new CodeNode; 
-		node->code = ":= beginloop\n"; 
+		node->code = std::string(":= beginloop\n"); 
 		$$ = node; 
         }
         ;
@@ -435,17 +463,17 @@ continue_statement:
 expression: 
         DIGIT 
         {
-                CodeNode* node = new CodeNode;
+                /*CodeNode* node = new CodeNode;
 	 	CodeNode* value = new CodeNode;
-		std::string code = std::to_string(value); 
+		std::string code = to_string(value); 
 		node->code = code; 
-		$$ = node;
+		$$ = node;*/
 		
         }    
         | OPEN_PARAMETER binary_expression CLOSE_PARAMETER 
         {
 		CodeNode* binary_expression = $2; 
-		CodeNode* nde = new CodeNode; 
+		CodeNode* node = new CodeNode; 
 		node->code = binary_expression->code; 
 		$$ = node; 
         }  
@@ -460,7 +488,7 @@ expression:
         {
 		std::string value = $1; 
 		CodeNode* add_expression  $3; 
-		std::string code = value + add_expression->code + "]"; 
+		std::string code = value + add_expression->code + std::string("]"); 
 		CodeNode* node = new CodeNode; 
 		node->code = code; 
 		$$ = node; 
@@ -477,9 +505,9 @@ expression:
 binary_expression: 
         add_expression 
         {
-                CodeNode *int_declar = $1;
+                CodeNode *add_expression = $1;
                 CodeNode *node = new CodeNode;
-                node->code = int_declar->code;
+                node->code = add_expression->code;
                 $$ = node;
         }
         | binary_expression EQUALS_TO add_expression 
@@ -542,9 +570,9 @@ binary_expression:
 add_expression: 
         mult_expression 
         {
-                CodeNode *int_declar = $1;
+                CodeNode *mult_expression = $1;
                 CodeNode *node = new CodeNode;
-                node->code = int_declar->code;
+                node->code = mult_expression->code;
                 $$ = node;
         }
         | add_expression ADDITION mult_expression 
@@ -721,23 +749,3 @@ int main(int argc, char** argv) {
         return 1;
 }
 
-bool has_main(){
-        bool TF = false;
-        for (int i = 0; i<symbol_table.size(); i++){
-                Function *f = &symbol_table[i];
-                if (f->name == "main")
-                        TF = true;
-        }
-        return TF;
-}
-
-std::string create_temp(){
-        static int num = 0;
-        std::string value = "_temp" + std::to_string(num);
-        num += 1;
-        return value;
-}
-
-std::string decl_temp_code(std::string &temp){
-        return std::string(". ") + temp + std::string("\n");
-}
