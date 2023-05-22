@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <string>
+#include <iostream>
 #include <vector>
 #include "y.tab.h"
 extern FILE* yyin;
@@ -14,6 +15,7 @@ extern int yylex(void);
 void yyerror(const char * s) {
     printf("Error: On line %d, column %d: %s \n", line_number, column_number, s);
 }
+
 
 char *identToken;
 int numberToken;
@@ -107,8 +109,6 @@ std::string create_temp(){
 std::string decl_temp_code(std::string &temp){
         return std::string(". ") + temp + std::string("\n");
 }
-
-
 %}
 
 %union {
@@ -185,12 +185,13 @@ functions:
         ;
 
 function: 
-        INTEGER ALPHA OPEN_PARAMETER args CLOSE_PARAMETER OPEN_SCOPE statements CLOSE_SCOPE 
+        INTEGER ALPHA {std::string func_name = $2;add_function_to_symbol_table(func_name);} OPEN_PARAMETER args CLOSE_PARAMETER OPEN_SCOPE statements CLOSE_SCOPE 
         {
                 std::string func_name = $2;
-                CodeNode *params = $4;
-                CodeNode *stmts = $7;
+                CodeNode *params = $5;
+                CodeNode *stmts = $8;
                 std::string code = std::string("func ") + func_name + std::string("\n");
+                code += func_name;
                 //code += params->code;
                 //code += stmts->code;
                 code += std::string("endfunc");
@@ -325,9 +326,8 @@ array_declaration:
         {
                 std::string value = $2;
                 CodeNode *add_exp = $4;
-                std::string code = std::string("array ") + value + std::string(" \n");
+                std::string code = std::string(".[] ") + value + std::string(" \n");
                 code += add_exp->code;
-                code += std::string("end array\n");
                 
                 CodeNode *node = new CodeNode;
                 node->code = code;
@@ -343,7 +343,7 @@ assign_statement:
         }
         | ASSIGN add_expression 
         {	
-		CodeNode *node = new CodeNode;
+		            CodeNode *node = new CodeNode;
                 CodeNode *add_expression = $2;
 
                 std::string code = std::string("=");
@@ -356,50 +356,48 @@ assign_statement:
 print_statement: 
         WRITE EXTRACT binary_expression END_STATEMENT 
         {
-		CodeNode* node = new CodeNode; 
-		CodeNode* binary_expression = $3; 
-		std::string code = std::string(".>") + binary_expression->code + std::string("\n"); 
+		            CodeNode *node = new CodeNode; 
+		            CodeNode *binary_expression = $3; 
+		            std::string code = std::string(".>") + binary_expression->code + std::string("\n"); 
                 node->code = code;   		
-		$$ = node; 	
-					
+		            $$ = node; 
         }
         | 
         WRITE EXTRACT binary_expression EXTRACT ENDL END_STATEMENT 
         {
-		CodeNode* node = new CodeNode; 
-		CodeNode* binary_expression = $3;   
-		std::string code = std::string(".>") + binary_expression->code + std::string("\n"); 
+		            CodeNode *node = new CodeNode; 
+		            CodeNode *binary_expression = $3;   
+		            std::string code = std::string(".>") + binary_expression->code + std::string("\n"); 
                 node->code = code;
-		$$ = node;
-		
+		            $$ = node;
         }
         ;
 
 input_statement: 
         READ INSERT ALPHA END_STATEMENT 
         {
-         	CodeNode* node = new CodeNode; 
-		std::string value = $3; 
-		std::string code = std::string(".<") + value + std::string("\n"); 
-		node->code = code; 
-		$$ = node;        
+         	      CodeNode* node = new CodeNode; 
+		            std::string value = $3; 
+		            std::string code = std::string(".<") + value + std::string("\n"); 
+		            node->code = code; 
+		            $$ = node;        
         }
         ;
 
 if_statement: 
         IF expression OPEN_SCOPE statements CLOSE_SCOPE else_statement 
         {
-         	CodeNode *node = new CodeNode; 
-		CodeNode *expr = $2; 
-		CodeNode *stmts = $4; 
-		CodeNode *else_statement = $6; 
+         	     CodeNode *node = new CodeNode; 
+		           CodeNode *expr = $2; 
+		           CodeNode *stmts = $4; 
+		           CodeNode *else_statement = $6; 
 	 	
-                std::string code = std::string("if ") + std::string("\n")  + std::string("else\n") + std::string("endif\n");
-                code += expr->code;
-                code += stmts->code;
-                code += else_statement->code;
-                node->code = code; 
-		$$ = node;         
+               std::string code = std::string("if ") + std::string("\n")  + std::string("else\n") + std::string("endif\n");
+               code += expr->code;
+               code += stmts->code;
+               code += else_statement->code;
+               node->code = code; 
+		           $$ = node;         
         }
         ;
 
@@ -635,10 +633,11 @@ mult_expression:
         }
         ;
 
+//alex does below this
 base_expression: 
-        expression 
+        expression
         {
-		CodeNode* expression = $1;
+		            CodeNode* expression = $1;
                 CodeNode* node = new CodeNode;
                 node->code = expression->code;
                 $$ = node;
@@ -648,21 +647,36 @@ base_expression:
 assign_int: 
         ALPHA ASSIGN add_expression END_STATEMENT 
         {
-                
-        }
+                std::string temp = create_temp();
+                CodeNode *node = new CodeNode;
+                node->code = $1->code + $3->code + decl_temp_code(temp);
+                node->code = std::string("= ") + temp + std::string(", ") + $3->name + std::string("\n");
+                node->name = temp;
+                $$ = node;
+        }       
         ;
 
 assign_array: 
         ALPHA OPEN_BRACKET DIGIT CLOSE_BRACKET ASSIGN add_expression END_STATEMENT 
         {
-                
+                std::string temp = create_temp();
+                CodeNode *node = new CodeNode;
+                node->code = $1->code + $3->code + $6->code + decl_temp_code(temp);
+                node->code = std::string("[]= ") + temp + std::string(", ") + $3->name + std::string(", ") + $6->name + std::string("\n");
+                node->name = temp;
+                $$ = node;
         }
         ;
 
 function_call: 
         ALPHA OPEN_PARAMETER param CLOSE_PARAMETER 
         {
-        
+                std::string temp = create_temp();
+                CodeNode *node = new CodeNode;
+                node->code = $1->code + decl_temp_code(temp);
+                node->code = std::string("call ") + $1->name + std::string(", ") + temp + std::string("\n");
+                node->name = temp;
+                $$ = node;
         }
 
 param: 
@@ -672,7 +686,8 @@ param:
         }
         | %empty 
         {
-        
+                CodeNode *node = new CodeNode;
+                $$ = node;
         }
         ;
 
@@ -683,7 +698,8 @@ params:
         }
         | %empty 
         {
-                
+                CodeNode *node = new CodeNode;
+                $$ = node;
         }
         ;
 
@@ -694,7 +710,8 @@ args:
         } 
         | %empty 
         {
-
+                CodeNode *node = new CodeNode;
+                $$ = node;
         }
         ;
 
@@ -705,7 +722,8 @@ repeat_args:
         }
         | %empty 
         {
-                
+                CodeNode *node = new CodeNode;
+                $$ = node;
         }
         ;
 
@@ -719,7 +737,10 @@ arg:
 return_statement: 
         RETURN return_expression END_STATEMENT 
         {
-                
+                CodeNode *node = new CodeNode;
+                node->code = $2->code + decl_temp_code(temp);
+                node->code = std::string("ret ") + $2->name + std::string("\n");
+                $$ = node;
         }
         ;
 
@@ -730,7 +751,8 @@ return_expression:
         }
         | %empty 
         {
-
+                CodeNode *node = new CodeNode;
+                $$ = node;
         }
         ;
 %%
@@ -748,4 +770,3 @@ int main(int argc, char** argv) {
 
         return 1;
 }
-
