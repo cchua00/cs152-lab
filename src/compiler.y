@@ -460,7 +460,7 @@ binary_expression:
         | binary_expression NOT add_expression 
         {
                 std::string temp = create_temp();
-                CodeNode* node = new CodeNode;
+                CodeNode *node = new CodeNode;
                 node->code = $1->code + $3->code + decl_temp_code(temp);
                 node->code = std::string("!= ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
                 node->name = temp;
@@ -469,7 +469,7 @@ binary_expression:
         | binary_expression LESS_THAN add_expression 
         {
                 std::string temp = create_temp();
-                CodeNode* node = new CodeNode;
+                CodeNode *node = new CodeNode;
                 node->code = $1->code + $3->code + decl_temp_code(temp);
                 node->code = std::string("< ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
                 node->name = temp;
@@ -478,7 +478,7 @@ binary_expression:
         | binary_expression LESS_THAN_OR_EQUAL_TO add_expression 
         {
                 std::string temp = create_temp();
-                CodeNode* node = new CodeNode;
+                CodeNode *node = new CodeNode;
                 node->code = $1->code + $3->code + decl_temp_code(temp);
                 node->code = std::string("<= ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
                 node->name = temp;
@@ -487,7 +487,7 @@ binary_expression:
         | binary_expression GREATER_THAN add_expression 
         {
                 std::string temp = create_temp();
-                CodeNode* node = new CodeNode;
+                CodeNode *node = new CodeNode;
                 node->code = $1->code + $3->code + decl_temp_code(temp);
                 node->code = std::string("> ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
                 node->name = temp;
@@ -496,7 +496,7 @@ binary_expression:
         | binary_expression GREATER_THAN_OR_EQUAL_TO add_expression 
         {
                 std::string temp = create_temp();
-                CodeNode* node = new CodeNode;
+                CodeNode *node = new CodeNode;
                 node->code = $1->code + $3->code + decl_temp_code(temp);
                 node->code = std::string(">= ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
                 node->name = temp;
