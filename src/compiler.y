@@ -668,10 +668,26 @@ assign_array:
         {
                 CodeNode *node = new CodeNode;
                 std::string value = $1;
+                std::string size = $3;
+                //int result = $3;
+                //int result = stoi(value);
                 CodeNode* addexp = $6;
 
                 node->code += addexp->code;
-                node->code += std::string("[]= ") + value + std::string(", ") + $3 + std::string(", ") + addexp->name + std::string("\n");
+
+                if(size == "" | size == " ")
+                {
+                        node->code += std::string("On line %d, column %d: size of array is undefined \n", line_number, column_number);
+                }
+                /*else if (result >= 0)
+                {
+                        node->code += std::string("On line %d, column %d: size of array is less than 0 \n", line_number, column_number);
+                }*/
+                else
+                {
+                        node->code += std::string("[]= ") + value + std::string(", ") + $3 + std::string(", ") + addexp->name + std::string("\n");
+                }
+
                 $$ = node;
         }
         ;
