@@ -3,4 +3,6 @@ int main() {
 
     a = 150;
     cout << a;
+
+    return 0;
 }

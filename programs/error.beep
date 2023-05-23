@@ -1,0 +1,11 @@
+int main() {
+    int n;
+    int r[10];
+    int n[10];
+
+    cin >> n;
+    n = z + 1;
+    n = n + r;
+    cout << n;
+    continue;
+}

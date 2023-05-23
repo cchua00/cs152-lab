@@ -15,4 +15,6 @@ int main() {
 
     a[3] = a[0] * (a[1] + c); 
     cout << a[3];
+
+    return 0;
 }

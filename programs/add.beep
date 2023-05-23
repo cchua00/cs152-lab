@@ -7,4 +7,6 @@ int main() {
     b = 50;
     c = a+b;
     cout << c;
+
+    return 0;
 }
