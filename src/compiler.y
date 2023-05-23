@@ -104,7 +104,7 @@ std::string create_temp() {
         static int num = 0;
         std::ostringstream ss;
         ss << num;
-        std::string value = "temp" + ss.str();
+        std::string value = "_temp" + ss.str();
         num += 1;
         return value;
 }
@@ -466,20 +466,21 @@ continue_statement:
         ;
 
 expression: 
-        DIGIT 
+        OPEN_PARAMETER binary_expression CLOSE_PARAMETER 
+        {
+		CodeNode* binary_expression = $2; 
+		CodeNode* node = new CodeNode; 
+		node->code = binary_expression->code; 
+                node->name = binary_expression->name; 
+		$$ = node; 
+        }
+        | DIGIT 
         {
                 CodeNode* node = new CodeNode;
                 std::string digit = $1;
                 node->name = digit;
                 $$ = node;
         }    
-        | OPEN_PARAMETER binary_expression CLOSE_PARAMETER 
-        {
-		CodeNode* binary_expression = $2; 
-		CodeNode* node = new CodeNode; 
-		node->code = binary_expression->code; 
-		$$ = node; 
-        }  
         | ALPHA 
         {
                 CodeNode* node = new CodeNode;
@@ -577,14 +578,15 @@ add_expression:
                 CodeNode *mult_expression = $1;
                 CodeNode *node = new CodeNode;
                 node->code = mult_expression->code;
+                node->name = mult_expression->name;
                 $$ = node;
         }
         | add_expression ADDITION mult_expression 
         {
                 std::string temp = create_temp();
                 CodeNode *node = new CodeNode;
-                node->code = $1->code + $3->code + decl_temp_code(temp);
-                node->code = std::string("+ ") + temp + std::string(", ") + $1->code + std::string(", ") + $3->code + std::string("\n");
+                node->code = $1->code + $3->code;
+                node->code = decl_temp_code(temp) + std::string("+ ") + temp + std::string(", ") + $1->code + std::string(", ") + $3->code + std::string("\n");
                 node->name = temp;
                 $$ = node;
         }
@@ -592,8 +594,8 @@ add_expression:
         {
                 std::string temp = create_temp();
                 CodeNode *node = new CodeNode;
-                node->code = $1->code + $3->code + decl_temp_code(temp);
-                node->code = std::string("- ") + temp + std::string(", ") + $1->code + std::string(", ") + $3->code + std::string("\n");
+                node->code = $1->code + $3->code;
+                node->code = decl_temp_code(temp) + std::string("- ") + temp + std::string(", ") + $1->code + std::string(", ") + $3->code + std::string("\n");
                 node->name = temp;
                 $$ = node;
         }
@@ -613,7 +615,7 @@ mult_expression:
                 std::string temp = create_temp();
                 CodeNode *node = new CodeNode;
                 node->code = $1->code + $3->code + decl_temp_code(temp);
-                node->code = std::string("* ") + temp + std::string(", ") + $1->code + std::string(", ") + $3->code + std::string("\n");
+                node->code = decl_temp_code(temp) + std::string("* ") + temp + std::string(", ") + $1->code + std::string(", ") + $3->code + std::string("\n");
                 node->name = temp;
                 $$ = node;
         }
@@ -622,7 +624,7 @@ mult_expression:
                 std::string temp = create_temp();
                 CodeNode *node = new CodeNode;
                 node->code = $1->code + $3->code + decl_temp_code(temp);
-                node->code = std::string("/ ") + temp + std::string(", ") + $1->code + std::string(", ") + $3->code + std::string("\n");
+                node->code = decl_temp_code(temp) + std::string("/ ") + temp + std::string(", ") + $1->code + std::string(", ") + $3->code + std::string("\n");
                 node->name = temp;
                 $$ = node;
         }
@@ -631,7 +633,7 @@ mult_expression:
                 std::string temp = create_temp();
                 CodeNode *node = new CodeNode;
                 node->code = $1->code + $3->code + decl_temp_code(temp);
-                node->code = std::string("% ") + temp + std::string(", ") + $1->code + std::string(", ") + $3->code + std::string("\n");
+                node->code = decl_temp_code(temp) + std::string("% ") + temp + std::string(", ") + $1->code + std::string(", ") + $3->code + std::string("\n");
                 node->name = temp;
                 $$ = node;
         }
