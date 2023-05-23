@@ -146,6 +146,7 @@ std::string decl_temp_code(std::string &temp){
 %type <node> assign_int
 %type <node> assign_array
 %type <node> add_expression
+%type <node> arg
 %type <node> args
 %token <op_val> ALPHA
 %token <op_val> DIGIT
@@ -198,10 +199,9 @@ function:
                 CodeNode *params = $5;
                 CodeNode *stmts = $8;
                 std::string code = std::string("func ") + func_name + std::string("\n");
-                //code += func_name; //not needed
-                //code += params->code;
+                code += params->code;
                 code += stmts->code;
-                code += std::string("endfunc");
+                code += std::string("endfunc") + std::string("\n");
                 
                 CodeNode *node = new CodeNode;
                 node->code = code;
@@ -501,10 +501,7 @@ expression:
         }
         | function_call 
         {
-		CodeNode* function_call = $1; 
-		CodeNode* node = new CodeNode; 
-		node->code = function_call->code; 
-		$$ = node; 
+                $$ = $1;
         }
         ;
 
@@ -656,13 +653,10 @@ base_expression:
 assign_int: 
         ALPHA ASSIGN add_expression END_STATEMENT 
         {
-                //need to pass name of temp var that we made to here
-                //addexp->name holds the temp var
                 std::string value = $1;
                 CodeNode *addexp = $3;
                 CodeNode *node = new CodeNode;
 
-                //new code
                 node->code = addexp->code; 
                 node->code += std::string("= ") + value + std::string(", ") + addexp->name + std::string("\n");
                 $$ = node;
@@ -685,18 +679,26 @@ assign_array:
 function_call: 
         ALPHA OPEN_PARAMETER param CLOSE_PARAMETER 
         {
-                /*std::string temp = create_temp();
+                std::string temp = create_temp();
                 CodeNode *node = new CodeNode;
-                node->code = $1->code + decl_temp_code(temp);
-                node->code = std::string("call ") + $1->name + std::string(", ") + temp + std::string("\n");
+                CodeNode *param = $3;
+                std::string value = $1;
+                node->code = param->code + decl_temp_code(temp);
+                node->code += std::string("call ") + value + std::string(", ") + temp + std::string("\n");
                 node->name = temp;
-                $$ = node;*/
+                $$ = node;
         }
 
 param: 
-        binary_expression params 
+        add_expression params 
         {
-
+                CodeNode *node = new CodeNode;
+                CodeNode *param = $1;
+                CodeNode *params = $2;
+                node->code = std::string("param ") + param->name + std::string("\n");
+                node->code += params->code;
+                $$ = node;
+                
         }
         | %empty 
         {
@@ -706,9 +708,13 @@ param:
         ;
 
 params: 
-        COMMA binary_expression params 
+        COMMA add_expression params 
         {
-                
+                CodeNode *node = new CodeNode;
+                CodeNode *params = $2;
+                node->code = params->code;
+                node->code += std::string("param ") + params->name + std::string("\n");
+                $$ = node;
         }
         | %empty 
         {
@@ -720,7 +726,32 @@ params:
 args: 
         arg repeat_args 
         {
+                CodeNode *node = new CodeNode;
+                CodeNode *arg = $1;
+                CodeNode *args = $2;
+                std::string code = arg->code + args->code;
+                std::string variableAssignments = "";
 
+                std::stringstream ss(code);
+                std::ostringstream intConverter;
+                std::string currLine;
+                int currentParam = 0;
+                
+                while (std::getline(ss, currLine))
+                {
+                        std::string currVar;
+                        if (currLine.substr(0, 2) == ". ")
+                        {
+                                currVar = currLine.substr(2);
+                        }
+                        intConverter << currentParam++;
+                        variableAssignments += "= " + currVar + ", " + "$" + intConverter.str() + "\n";
+                        intConverter.str("");
+                        intConverter.clear();
+                }
+                
+                node->code = code + variableAssignments;
+                $$ = node;
         } 
         | %empty 
         {
@@ -732,7 +763,13 @@ args:
 repeat_args: 
         COMMA arg repeat_args 
         {
-                
+                CodeNode *arg = $2;
+                CodeNode *args = $3;
+                std::string code = arg->code + args->code;
+
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
         }
         | %empty 
         {
@@ -744,7 +781,14 @@ repeat_args:
 arg: 
         INTEGER ALPHA 
         {
-                
+                std::string value = $2;
+                Type t = Integer;
+                add_variable_to_symbol_table(value, t);
+
+                std::string code = std::string(". ") + value + std::string("\n");
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
         }
         ;
 
@@ -752,16 +796,16 @@ return_statement:
         RETURN return_expression END_STATEMENT 
         {
                 CodeNode *node = new CodeNode;
-                CodeNode *ret = new CodeNode;
-                node->code = std::string("ret ") + ret->code + std::string("\n");
+                CodeNode *ret = $2;
+                node->code = ret->code + std::string("ret ") + ret->name + std::string("\n");
                 $$ = node;
         }
         ;
 
 return_expression: 
         add_expression 
-        {
-                
+        {;
+                $$ = $1;
         }
         | %empty 
         {
