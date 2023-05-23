@@ -32,8 +32,6 @@ int main() {
     b = 2;
     c = (a + b) * 7;
     cout << c << endl;
-
-    return 0;
 }
 
 
