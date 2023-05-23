@@ -90,16 +90,6 @@ void print_symbol_table(void) {
   printf("--------------------\n");
 }
 
-bool has_main(){
-        bool TF = false;
-        for (int i = 0; i<symbol_table.size(); i++){
-                Function *f = &symbol_table[i];
-                if (f->name == "main")
-                        TF = true;
-        }
-        return TF;
-}
-
 std::string create_temp() {
         static int num = 0;
         std::ostringstream ss;
@@ -112,6 +102,16 @@ std::string create_temp() {
 std::string decl_temp_code(std::string &temp){
         return std::string(". ") + temp + std::string("\n");
 }
+
+bool findFunction(std::string& name)
+{
+        for (int i = 0; i < symbol_table.size(); i++)
+        {
+                if (symbol_table[i].name == name) return true;
+        }
+        return false;
+}
+
 %}
 
 %union {
@@ -150,6 +150,7 @@ std::string decl_temp_code(std::string &temp){
 %type <node> args
 %token <op_val> ALPHA
 %token <op_val> DIGIT
+%type <op_val> function_identifier add_to_symbol_table
 %type <node> mult_expression 
 %type <node> expression 
 %type <node> binary_expression 
@@ -165,10 +166,15 @@ prog_start:
         {} 
         | functions 
         {
-               CodeNode *node = $1; 
-                //printf("All generated code: \n");
-                printf("%s\n", node->code.c_str());      
-
+                std::string mainCheck = "main";
+                if (!findFunction(mainCheck))
+                {
+                        std::string errorMsg = "File must define a main function returning int.";
+                        yyerror(errorMsg.c_str());
+                }
+                CodeNode *node = $1;
+                std::string code = node->code;
+                printf("%s\n", code.c_str());      
         }
         ;
 
@@ -193,21 +199,55 @@ functions:
         ;
 
 function: 
-        INTEGER ALPHA {std::string func_name = $2;add_function_to_symbol_table(func_name);} OPEN_PARAMETER args CLOSE_PARAMETER OPEN_SCOPE statements CLOSE_SCOPE 
+        INTEGER add_to_symbol_table OPEN_PARAMETER args CLOSE_PARAMETER OPEN_SCOPE statements CLOSE_SCOPE 
         {
-                std::string func_name = $2;
-                CodeNode *params = $5;
-                CodeNode *stmts = $8;
-                std::string code = std::string("func ") + func_name + std::string("\n");
-                code += params->code;
-                code += stmts->code;
-                code += std::string("endfunc") + std::string("\n");
-                
                 CodeNode *node = new CodeNode;
-                node->code = code;
+
+                char *c = $2;
+                std::string function_identifier(c);
+
+                CodeNode *arg = $4;
+                node->code = function_identifier + arg->code;
+
+                CodeNode *body = $7;
+                node->code += body->code;
+                if (node->code.find("ret") == std::string::npos)
+                {
+                        std::string funcName = get_function()->name;
+                        std::string errorMsg = "no return statement in function";
+                        
+                        yyerror(errorMsg.c_str());
+                }
+                node->code += "endfunc\n";
                 $$ = node; 
         }
 	;
+
+add_to_symbol_table: function_identifier {
+                char *c = $1;
+                std::string function_identifier(c);
+                std::string functionName = function_identifier.substr(5, function_identifier.size() - 6);
+
+                if (findFunction(functionName))
+                {
+                                std::string errorMsg = "Cannot have two functions with the same name \"" + functionName + "\"";
+                                yyerror(errorMsg.c_str());
+                }
+                
+                add_function_to_symbol_table(functionName);
+                $$ = $1;
+        };
+
+function_identifier: ALPHA {
+                std::string func_name = $1;
+                std::string functionDeclaration = "func " + func_name + "\n";
+                int strLen = functionDeclaration.size();
+                char *c = new char[strLen + 1];
+                std::copy(functionDeclaration.begin(), functionDeclaration.end(), c);
+                c[strLen] = '\0';
+
+                $$ = c;
+        };
 
 statements: 
         statement statements 
@@ -228,95 +268,67 @@ statements:
 statement: 
         int_declaration 
         {
-                CodeNode *int_declar = $1;
-                CodeNode *node = new CodeNode;
-                node->code = int_declar->code;
-                $$ = node;
+                $$ = $1;
         }
         | array_declaration 
         {
-                CodeNode *array_declar = $1;
-                CodeNode *node = new CodeNode;
-                node->code = array_declar->code;
-                $$ = node;
+                $$ = $1;
         }
         | print_statement 
         {
-                CodeNode *print_stmt = $1;
-                CodeNode *node = new CodeNode;
-                node->code = print_stmt->code;
-                $$ = node;
+                $$ = $1;
         }
         | input_statement 
         {
-                CodeNode *input_stmt = $1;
-                CodeNode *node = new CodeNode;
-                node->code = input_stmt->code;
-                $$ = node;
+                $$ = $1;
         }
         | if_statement 
         {
-                CodeNode *if_stmt = $1;
-                CodeNode *node = new CodeNode;
-                node->code = if_stmt->code;
-                $$ = node;
+                $$ = $1;
         }
         | while_statement 
         {
-                CodeNode *while_stmt = $1;
-                CodeNode *node = new CodeNode;
-                node->code = while_stmt->code;
-                $$ = node;
+                $$ = $1;
         }
         | break_statement 
         {
-                CodeNode *break_stmt = $1;
-                CodeNode *node = new CodeNode;
-                node->code = break_stmt->code;
-                $$ = node;
+                $$ = $1;
         }
         | continue_statement 
         {
-                CodeNode *continue_stmt = $1;
-                CodeNode *node = new CodeNode;
-                node->code = continue_stmt->code;
-                $$ = node;
+                $$ = $1;
         }
         | function_call 
         {
-                CodeNode *func_call = $1;
-                CodeNode *node = new CodeNode;
-                node->code = func_call->code;
-                $$ = node;
+                $$ = $1;
         }
         | return_statement 
         {
-                CodeNode *return_stmt = $1;
-                CodeNode *node = new CodeNode;
-                node->code = return_stmt->code;
-                $$ = node;
+                $$ = $1;
         }
         | assign_int 
         {
-                CodeNode *assign_int = $1;
-                CodeNode *node = new CodeNode;
-                node->code = assign_int->code;
-                $$ = node;
+                $$ = $1;
         }
         | assign_array 
         {
-                CodeNode *assign_array = $1;
-                CodeNode *node = new CodeNode;
-                node->code = assign_array->code;
-                $$ = node;
+                $$ = $1;
         }
         ;
 
 int_declaration: 
-        INTEGER ALPHA {std::string var_name = $2;Type type = Integer; add_variable_to_symbol_table(var_name, type);} assign_statement END_STATEMENT 
+        INTEGER ALPHA assign_statement END_STATEMENT 
         {
-                CodeNode *assign_statement = $4;
+                CodeNode *assign_statement = $3;
                 std::string value = $2;
+                if (find(value))
+                {
+                        std::string funcName = get_function()->name;
+                        std::string errorMsg = "\"" + value + "\" is being redeclared";
+                        
+                        yyerror(errorMsg.c_str());
+                }
+
                 Type t = Integer;
                 add_variable_to_symbol_table(value, t);
 
@@ -330,16 +342,28 @@ int_declaration:
         ;
 
 array_declaration: 
-        INTEGER ALPHA {std::string var_name = $2;Type type = Integer; add_variable_to_symbol_table(var_name, type);} OPEN_BRACKET add_expression CLOSE_BRACKET assign_statement END_STATEMENT 
+        INTEGER ALPHA OPEN_BRACKET DIGIT CLOSE_BRACKET assign_statement END_STATEMENT 
         {
-                std::string value = $2;
-                CodeNode *add_exp = $5;
-                std::string code = std::string(".[] ") + value + std::string(", ") + add_exp->name + std::string(" \n");
-                code += add_exp->code;
-                
                 CodeNode *node = new CodeNode;
-                node->code = code;
-                $$ = node; 
+                std::string symbol = $4;
+                std::string array_name = $2;
+                int index = 0;
+                std::stringstream ss($4);
+                ss >> index;
+                if (index < 1) {
+                        std::string funcName = get_function()->name;
+                        std::string error_message = "index must be a positive whole number.";
+                        yyerror(error_message.c_str());    
+                }
+                
+                if (find(array_name)) {
+                        std::string funcName = get_function()->name;
+                        std::string error_message = "\"" + array_name + "\" already exists in the symbol table.";
+                        yyerror(error_message.c_str());
+                }
+                add_variable_to_symbol_table(array_name, Array);
+                node->code = ".[] " + array_name + ", " + symbol + "\n";
+                $$ = node;
         }
 	;
 
@@ -384,11 +408,11 @@ print_statement:
 input_statement: 
         READ INSERT ALPHA END_STATEMENT 
         {
-         	      CodeNode* node = new CodeNode; 
-		            std::string value = $3; 
-		            std::string code = std::string(".<") + value + std::string("\n"); 
-		            node->code = code; 
-		            $$ = node;        
+                CodeNode* node = new CodeNode; 
+                std::string value = $3; 
+                std::string code = std::string(".< ") + value + std::string("\n"); 
+                node->code = code; 
+                $$ = node;        
         }
         ;
 
@@ -485,19 +509,26 @@ expression:
         {
                 CodeNode* node = new CodeNode;
                 std::string alpha = $1;
+                if (!find(alpha) && !find(alpha))
+                {
+                        std::string funcName = get_function()->name;
+                        std::string errorMsg = "use of unknown variable \"" + alpha + "\"" + " before declaration.";
+                        
+                        yyerror(errorMsg.c_str());
+                }
                 node->name = alpha;
                 $$ = node;
         }
-        | ALPHA OPEN_BRACKET add_expression CLOSE_BRACKET 
+        | ALPHA OPEN_BRACKET DIGIT CLOSE_BRACKET 
         {
+                CodeNode *node = new CodeNode;
+                std::string symbol($3);
                 std::string temp = create_temp();
-		std::string value = $1; 
-		CodeNode* add_expression = $3; 
-                std::string code = decl_temp_code(temp) + std::string("=[] ") + temp + std::string(", ") + value + std::string(", ") + add_expression->name + std::string("\n"); 
-		CodeNode* node = new CodeNode; 
-		node->code = code; 
                 node->name = temp;
-		$$ = node; 
+                std::string declareTemp = decl_temp_code(temp); 
+                std::string array_name = $1;
+                node->code = declareTemp + "=[] " + temp + ", " + array_name + ", " + symbol + "\n";
+                $$ = node;
         }
         | function_call 
         {
@@ -668,6 +699,12 @@ assign_array:
         {
                 CodeNode *node = new CodeNode;
                 std::string value = $1;
+                if (!find(value)) {
+                        std::string funcName = get_function()->name;
+                        std::string error_message = "\"" + value + "\" does not exist in the symbol table.";
+                        yyerror(error_message.c_str());
+                }
+
                 CodeNode* addexp = $6;
 
                 node->code += addexp->code;
@@ -763,12 +800,7 @@ args:
 repeat_args: 
         COMMA arg repeat_args 
         {
-                CodeNode *arg = $2;
-                CodeNode *args = $3;
-                std::string code = arg->code + args->code;
-
-                CodeNode *node = new CodeNode;
-                node->code = code;
+                CodeNode *node = $2;
                 $$ = node;
         }
         | %empty 
@@ -783,6 +815,13 @@ arg:
         {
                 std::string value = $2;
                 Type t = Integer;
+                if (find(value))
+                {
+                        std::string errorMsg = "symbol " + value + " is multiply-defined.";
+                        
+                        yyerror(errorMsg.c_str());
+                        
+                }
                 add_variable_to_symbol_table(value, t);
 
                 std::string code = std::string(". ") + value + std::string("\n");
@@ -804,13 +843,8 @@ return_statement:
 
 return_expression: 
         add_expression 
-        {;
-                $$ = $1;
-        }
-        | %empty 
         {
-                CodeNode *node = new CodeNode;
-                $$ = node;
+                $$ = $1;
         }
         ;
 %%
