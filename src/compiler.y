@@ -485,7 +485,7 @@ expression:
         {
                 CodeNode* node = new CodeNode;
                 std::string alpha = $1;
-                node->code = alpha;
+                node->name = alpha;
                 $$ = node;
         }
         | ALPHA OPEN_BRACKET add_expression CLOSE_BRACKET 
@@ -586,7 +586,7 @@ add_expression:
                 std::string temp = create_temp();
                 CodeNode *node = new CodeNode;
                 node->code = $1->code + $3->code;
-                node->code = decl_temp_code(temp) + std::string("+ ") + temp + std::string(", ") + $1->code + std::string(", ") + $3->code + std::string("\n");
+                node->code += decl_temp_code(temp) + std::string("+ ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
                 node->name = temp;
                 $$ = node;
         }
@@ -595,7 +595,7 @@ add_expression:
                 std::string temp = create_temp();
                 CodeNode *node = new CodeNode;
                 node->code = $1->code + $3->code;
-                node->code = decl_temp_code(temp) + std::string("- ") + temp + std::string(", ") + $1->code + std::string(", ") + $3->code + std::string("\n");
+                node->code += decl_temp_code(temp) + std::string("- ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
                 node->name = temp;
                 $$ = node;
         }
@@ -614,8 +614,8 @@ mult_expression:
         {
                 std::string temp = create_temp();
                 CodeNode *node = new CodeNode;
-                node->code = $1->code + $3->code + decl_temp_code(temp);
-                node->code = decl_temp_code(temp) + std::string("* ") + temp + std::string(", ") + $1->code + std::string(", ") + $3->code + std::string("\n");
+                node->code = $1->code + $3->code;
+                node->code += decl_temp_code(temp) + std::string("* ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
                 node->name = temp;
                 $$ = node;
         }
@@ -623,8 +623,8 @@ mult_expression:
         {
                 std::string temp = create_temp();
                 CodeNode *node = new CodeNode;
-                node->code = $1->code + $3->code + decl_temp_code(temp);
-                node->code = decl_temp_code(temp) + std::string("/ ") + temp + std::string(", ") + $1->code + std::string(", ") + $3->code + std::string("\n");
+                node->code = $1->code + $3->code ;
+                node->code += decl_temp_code(temp) + std::string("/ ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
                 node->name = temp;
                 $$ = node;
         }
@@ -632,8 +632,8 @@ mult_expression:
         {
                 std::string temp = create_temp();
                 CodeNode *node = new CodeNode;
-                node->code = $1->code + $3->code + decl_temp_code(temp);
-                node->code = decl_temp_code(temp) + std::string("% ") + temp + std::string(", ") + $1->code + std::string(", ") + $3->code + std::string("\n");
+                node->code = $1->code + $3->code;
+                node->code += decl_temp_code(temp) + std::string("% ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
                 node->name = temp;
                 $$ = node;
         }
