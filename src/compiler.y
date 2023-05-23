@@ -334,7 +334,7 @@ array_declaration:
         {
                 std::string value = $2;
                 CodeNode *add_exp = $5;
-                std::string code = std::string(".[] ") + value + std::string(" \n");
+                std::string code = std::string(".[] ") + value + std::string(", ") + add_exp->name + std::string(" \n");
                 code += add_exp->code;
                 
                 CodeNode *node = new CodeNode;
@@ -366,7 +366,7 @@ print_statement:
         {
 		            CodeNode *node = new CodeNode; 
 		            CodeNode *binary_expression = $3; 
-		            std::string code = std::string(".> ") + binary_expression->code + std::string("\n"); 
+		            std::string code = binary_expression->code + std::string(".> ") + binary_expression->name + std::string("\n"); 
                 node->code = code;   		
 		            $$ = node; 
         }
@@ -375,7 +375,7 @@ print_statement:
         {
 		            CodeNode *node = new CodeNode; 
 		            CodeNode *binary_expression = $3;   
-		            std::string code = std::string(".> ") + binary_expression->code + std::string("\n"); 
+		            std::string code = binary_expression->code + std::string(".> ") + binary_expression->name + std::string("\n"); 
                 node->code = code;
 		            $$ = node;
         }
@@ -490,11 +490,13 @@ expression:
         }
         | ALPHA OPEN_BRACKET add_expression CLOSE_BRACKET 
         {
+                std::string temp = create_temp();
 		std::string value = $1; 
 		CodeNode* add_expression = $3; 
-		std::string code = value + std::string("[") + add_expression->code + std::string("]"); 
+                std::string code = decl_temp_code(temp) + std::string("=[] ") + temp + std::string(", ") + value + std::string(", ") + add_expression->name + std::string("\n"); 
 		CodeNode* node = new CodeNode; 
 		node->code = code; 
+                node->name = temp;
 		$$ = node; 
         }
         | function_call 
@@ -670,12 +672,13 @@ assign_int:
 assign_array: 
         ALPHA OPEN_BRACKET DIGIT CLOSE_BRACKET ASSIGN add_expression END_STATEMENT 
         {
-                /*std::string temp = create_temp();
                 CodeNode *node = new CodeNode;
-                node->code = $1->code + $3->code + $6->code + decl_temp_code(temp);
-                node->code = std::string("[]= ") + temp + std::string(", ") + $3->name + std::string(", ") + $6->name + std::string("\n");
-                node->name = temp;
-                $$ = node;*/
+                std::string value = $1;
+                CodeNode* addexp = $6;
+
+                node->code += addexp->code;
+                node->code += std::string("[]= ") + value + std::string(", ") + $3 + std::string(", ") + addexp->name + std::string("\n");
+                $$ = node;
         }
         ;
 
