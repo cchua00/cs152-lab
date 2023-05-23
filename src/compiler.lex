@@ -42,7 +42,11 @@ endl {column_number += yyleng; return ENDL;}
 
 (##).* {column_number = 1;}
 
-[0-9]+ {column_number += yyleng; return DIGIT;}
+[0-9]+ {column_number += yyleng; char* token = new char[yyleng];
+    strcpy(token, yytext);
+    yylval.op_val = token; 
+    return DIGIT;
+    }
 
 [0-9_][a-zA-Z0-9_]*[a-zA-Z0-9_] {printf("Error at line %d, column %d: identifier \"%s\" must begin with a letter\n", column_number, line_number, yytext); exit(0);}
 [a-zA-Z0-9_]*[_] {printf("Error at line %d, column %d: identifier \"%s\" cannot end with an underscore\n", column_number, line_number, yytext); exit(0);}

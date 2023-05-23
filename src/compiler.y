@@ -330,10 +330,10 @@ int_declaration:
         ;
 
 array_declaration: 
-        INTEGER ALPHA OPEN_BRACKET add_expression CLOSE_BRACKET assign_statement END_STATEMENT 
+        INTEGER ALPHA {std::string var_name = $2;Type type = Integer; add_variable_to_symbol_table(var_name, type);} OPEN_BRACKET add_expression CLOSE_BRACKET assign_statement END_STATEMENT 
         {
                 std::string value = $2;
-                CodeNode *add_exp = $4;
+                CodeNode *add_exp = $5;
                 std::string code = std::string(".[] ") + value + std::string(" \n");
                 code += add_exp->code;
                 
@@ -470,7 +470,7 @@ expression:
         {
                 CodeNode* node = new CodeNode;
                 std::string digit = $1;
-                node->code = digit;
+                node->name = digit;
                 $$ = node;
         }    
         | OPEN_PARAMETER binary_expression CLOSE_PARAMETER 
@@ -511,6 +511,7 @@ binary_expression:
                 CodeNode *add_expression = $1;
                 CodeNode *node = new CodeNode;
                 node->code = add_expression->code;
+                node->name = add_expression->name;
                 $$ = node;
         }
         | binary_expression EQUALS_TO add_expression 
@@ -604,6 +605,7 @@ mult_expression:
                 CodeNode *base_expression = $1;
                 CodeNode *node = new CodeNode;
                 node->code = base_expression->code;
+                node->name = base_expression->name;
                 $$ = node;
         }
         | mult_expression MULTIPLICATION base_expression 
@@ -642,6 +644,7 @@ base_expression:
 	        CodeNode* expression = $1;
                 CodeNode* node = new CodeNode;
                 node->code = expression->code;
+                node->name = expression->name;
                 $$ = node;
         }
         ;
@@ -649,13 +652,15 @@ base_expression:
 assign_int: 
         ALPHA ASSIGN add_expression END_STATEMENT 
         {
+                //need to pass name of temp var that we made to here
+                //addexp->name holds the temp var
                 std::string value = $1;
                 CodeNode *addexp = $3;
                 CodeNode *node = new CodeNode;
 
-                node->code = addexp->code;
-                std::string code = std::string("= ") + value + std::string(", ") + addexp->code + std::string("\n");
-                node->code = code;
+                //new code
+                node->code = addexp->code; 
+                node->code += std::string("= ") + value + std::string(", ") + addexp->name + std::string("\n");
                 $$ = node;
         }       
         ;
