@@ -6,4 +6,4 @@ all:
 	g++ $(CXXFLAGS) -o parser lex.yy.c y.tab.c -lfl
 	
 clean:
-	rm -f parser lex.yy.c y.tab.c y.tab.h y.output *.mil mil_run
+	rm -f parser lex.yy.c y.tab.c y.tab.h y.output *.mil
