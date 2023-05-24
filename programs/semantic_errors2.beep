@@ -1,0 +1,13 @@
+int main()
+{
+    b = moo();
+    b = 100;
+    
+    int x = 10;
+    int x = 100;
+    
+    int if; 
+
+    int array[-100];
+    int array2[100];
+}

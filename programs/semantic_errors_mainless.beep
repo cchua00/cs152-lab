@@ -1,8 +1,4 @@
-int main()
+int mai()
 {
-    int array;
-
-    cout << array[1];
-
     return 0;
 }

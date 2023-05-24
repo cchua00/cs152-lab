@@ -114,6 +114,29 @@ bool findFunction(std::string& name, Type returnType)
         return false;
 }
 
+bool checkFunction(std::string& name)
+{
+        for (int i = 0; i < symbol_table.size(); i++)
+        {
+                if (symbol_table[i].name == name)
+                {
+                        if(symbol_table[i].declarations.size() == 0)
+                        {
+                                return false;
+                        }
+                        else
+                        {
+                                return true;
+                        }
+                }
+                else
+                {
+                        std::string("No such function!\n");
+                        return false;
+                }
+        }
+}
+
 %}
 
 %union {
@@ -525,6 +548,15 @@ expression:
         {
                 CodeNode *node = new CodeNode;
                 std::string symbol($3);
+
+                if (!find(symbol, Array))
+                {
+                        std::string funcName = get_function()->name;
+                        std::string errorMsg = "use of unknown variable \"" + symbol + "\"" + " before declaration.";
+                        
+                        yyerror(errorMsg.c_str());
+                }
+
                 std::string temp = create_temp();
                 node->name = temp;
                 std::string declareTemp = decl_temp_code(temp); 
@@ -741,6 +773,13 @@ function_call:
                 CodeNode *node = new CodeNode;
                 CodeNode *param = $3;
                 std::string value = $1;
+
+                if(!checkFunction(value))
+                {
+                        std::string error_message = "Use of undefined function " + value;
+                        yyerror(error_message.c_str());
+                }
+
                 node->code = param->code + decl_temp_code(temp);
                 node->code += std::string("call ") + value + std::string(", ") + temp + std::string("\n");
                 node->name = temp;
