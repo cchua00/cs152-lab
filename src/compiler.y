@@ -213,7 +213,7 @@ function:
 
                 CodeNode *body = $7;
                 node->code += body->code;
-                if (node->code.find("ret") == std::string::npos)
+                if (node->code.find("ret") == std::string::npos && get_function()->returnType == Integer)
                 {
                         std::string funcName = get_function()->name;
                         if(funcName != "main") {
@@ -331,9 +331,9 @@ int_declaration:
                         
                         yyerror(errorMsg.c_str());
                 }
-
-                add_variable_to_symbol_table(value, Integer);
-
+                else {
+                        add_variable_to_symbol_table(value, Integer);
+                }
                 std::string code = std::string(". ") + value + std::string("\n");
                 CodeNode *node = new CodeNode;
                 node->code += code;
@@ -363,7 +363,9 @@ array_declaration:
                         std::string error_message = array_name + " already exists in the symbol table.";
                         yyerror(error_message.c_str());
                 }
-                add_variable_to_symbol_table(array_name, Array);
+                else {
+                        add_variable_to_symbol_table(array_name, Array);
+                }
                 node->code = ".[] " + array_name + ", " + symbol + "\n";
                 $$ = node;
         }
