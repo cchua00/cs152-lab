@@ -1,4 +1,3 @@
-int moo(){}
 int main()
 {
     int a = moo();

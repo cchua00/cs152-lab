@@ -114,29 +114,6 @@ bool findFunction(std::string& name, Type returnType)
         return false;
 }
 
-bool checkFunction(std::string& name)
-{
-        for (int i = 0; i < symbol_table.size(); i++)
-        {
-                if (symbol_table[i].name == name)
-                {
-                        if(symbol_table[i].declarations.size() == 0)
-                        {
-                                return false;
-                        }
-                        else
-                        {
-                                return true;
-                        }
-                }
-                else
-                {
-                        std::string("No such function!\n");
-                        return false;
-                }
-        }
-}
-
 %}
 
 %union {
@@ -772,9 +749,10 @@ function_call:
                 std::string temp = create_temp();
                 CodeNode *node = new CodeNode;
                 CodeNode *param = $3;
+                Type t = Integer;
                 std::string value = $1;
 
-                if(!checkFunction(value))
+                if(!findFunction(value, t))
                 {
                         std::string error_message = "Use of undefined function " + value;
                         yyerror(error_message.c_str());
