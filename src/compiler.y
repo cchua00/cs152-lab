@@ -36,6 +36,7 @@ struct Symbol {
 
 struct Function {
   std::string name;
+  Type returnType;
   std::vector<Symbol> declarations;
 };
 
@@ -64,9 +65,10 @@ bool find(std::string &value, Type t) {
   return false;
 }
 
-void add_function_to_symbol_table(std::string &value) {
+void add_function_to_symbol_table(std::string &value, Type returnType) {
   Function f; 
-  f.name = value; 
+  f.name = value;
+  f.returnType = returnType;
   symbol_table.push_back(f);
 }
 
@@ -103,11 +105,11 @@ std::string decl_temp_code(std::string &temp){
         return std::string(". ") + temp + std::string("\n");
 }
 
-bool findFunction(std::string& name)
+bool findFunction(std::string& name, Type returnType)
 {
         for (int i = 0; i < symbol_table.size(); i++)
         {
-                if (symbol_table[i].name == name) return true;
+                if (symbol_table[i].name == name && symbol_table[i].returnType == returnType) return true;
         }
         return false;
 }
@@ -167,7 +169,7 @@ prog_start:
         | functions 
         {
                 std::string mainCheck = "main";
-                if (!findFunction(mainCheck))
+                if (!findFunction(mainCheck, Integer))
                 {
                         std::string errorMsg = "File must define a main function returning int.";
                         yyerror(errorMsg.c_str());
@@ -229,13 +231,13 @@ add_to_symbol_table: function_identifier {
                 std::string function_identifier(c);
                 std::string functionName = function_identifier.substr(5, function_identifier.size() - 6);
 
-                if (findFunction(functionName))
+                if (findFunction(functionName, Integer))
                 {
                                 std::string errorMsg = "Cannot have two functions with the same name \"" + functionName + "\"";
                                 yyerror(errorMsg.c_str());
                 }
                 
-                add_function_to_symbol_table(functionName);
+                add_function_to_symbol_table(functionName, Integer);
                 $$ = $1;
         };
 
@@ -330,8 +332,7 @@ int_declaration:
                         yyerror(errorMsg.c_str());
                 }
 
-                Type t = Integer;
-                add_variable_to_symbol_table(value, t);
+                add_variable_to_symbol_table(value, Integer);
 
                 std::string code = std::string(". ") + value + std::string("\n");
                 CodeNode *node = new CodeNode;
