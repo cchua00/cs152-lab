@@ -1,0 +1,22 @@
+int wrong(){}
+
+//will give error if there's no int main
+int main()
+{
+    wrong(); //does not give error (for calling undefined function)
+    b = 100;
+    
+    int x = 10;
+    int x = 100;//gives error
+    
+    int if; //gives error
+
+    int array[-100]; //does not give error
+
+    return 0;
+}
+
+//errors that work:
+- keywords
+- x is being redeclared
+- compiler recognizes when there is no main function
