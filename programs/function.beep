@@ -23,5 +23,4 @@ int main()
 
   d = mult(c, a + b);
   cout << d;
-  return 0;
 }
