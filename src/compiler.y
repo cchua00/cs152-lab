@@ -14,7 +14,7 @@ extern int column_number;
 extern int yylex(void);
 
 void yyerror(const char * s) {
-    printf("Error: On line %d, column %d: %s \n", line_number, column_number, s);
+        printf("Error: On line %d, column %d: %s \n", line_number, column_number, s);
 }
 
 
@@ -36,6 +36,7 @@ struct Symbol {
 
 struct Function {
   std::string name;
+  Type returnType;
   std::vector<Symbol> declarations;
 };
 
@@ -53,20 +54,21 @@ Function *get_function() {
 }
 
 
-bool find(std::string &value) {
+bool find(std::string &value, Type t) {
   Function *f = get_function();
   for(int i=0; i < f->declarations.size(); i++) {
     Symbol *s = &f->declarations[i];
-    if (s->name == value) {
+    if (s->name == value && s->type == t) {
       return true;
     }
   }
   return false;
 }
 
-void add_function_to_symbol_table(std::string &value) {
+void add_function_to_symbol_table(std::string &value, Type returnType) {
   Function f; 
-  f.name = value; 
+  f.name = value;
+  f.returnType = returnType;
   symbol_table.push_back(f);
 }
 
@@ -103,11 +105,11 @@ std::string decl_temp_code(std::string &temp){
         return std::string(". ") + temp + std::string("\n");
 }
 
-bool findFunction(std::string& name)
+bool findFunction(std::string& name, Type returnType)
 {
         for (int i = 0; i < symbol_table.size(); i++)
         {
-                if (symbol_table[i].name == name) return true;
+                if (symbol_table[i].name == name && symbol_table[i].returnType == returnType) return true;
         }
         return false;
 }
@@ -167,7 +169,7 @@ prog_start:
         | functions 
         {
                 std::string mainCheck = "main";
-                if (!findFunction(mainCheck))
+                if (!findFunction(mainCheck, Integer))
                 {
                         std::string errorMsg = "File must define a main function returning int.";
                         yyerror(errorMsg.c_str());
@@ -214,9 +216,10 @@ function:
                 if (node->code.find("ret") == std::string::npos)
                 {
                         std::string funcName = get_function()->name;
-                        std::string errorMsg = "no return statement in function";
-                        
-                        yyerror(errorMsg.c_str());
+                        if(funcName != "main") {
+                                std::string errorMsg = "no return statement in function";
+                                yyerror(errorMsg.c_str());
+                        }
                 }
                 node->code += "endfunc\n";
                 $$ = node; 
@@ -228,13 +231,13 @@ add_to_symbol_table: function_identifier {
                 std::string function_identifier(c);
                 std::string functionName = function_identifier.substr(5, function_identifier.size() - 6);
 
-                if (findFunction(functionName))
+                if (findFunction(functionName, Integer))
                 {
                                 std::string errorMsg = "Cannot have two functions with the same name \"" + functionName + "\"";
                                 yyerror(errorMsg.c_str());
                 }
                 
-                add_function_to_symbol_table(functionName);
+                add_function_to_symbol_table(functionName, Integer);
                 $$ = $1;
         };
 
@@ -321,7 +324,7 @@ int_declaration:
         {
                 CodeNode *assign_statement = $3;
                 std::string value = $2;
-                if (find(value))
+                if (find(value, Integer))
                 {
                         std::string funcName = get_function()->name;
                         std::string errorMsg = "\"" + value + "\" is being redeclared";
@@ -329,8 +332,7 @@ int_declaration:
                         yyerror(errorMsg.c_str());
                 }
 
-                Type t = Integer;
-                add_variable_to_symbol_table(value, t);
+                add_variable_to_symbol_table(value, Integer);
 
                 std::string code = std::string(". ") + value + std::string("\n");
                 CodeNode *node = new CodeNode;
@@ -356,9 +358,9 @@ array_declaration:
                         yyerror(error_message.c_str());    
                 }
                 
-                if (find(array_name)) {
+                if (find(array_name, Array) || find(array_name, Integer)) {
                         std::string funcName = get_function()->name;
-                        std::string error_message = "\"" + array_name + "\" already exists in the symbol table.";
+                        std::string error_message = array_name + " already exists in the symbol table.";
                         yyerror(error_message.c_str());
                 }
                 add_variable_to_symbol_table(array_name, Array);
@@ -507,16 +509,16 @@ expression:
         }    
         | ALPHA 
         {
-                CodeNode* node = new CodeNode;
-                std::string alpha = $1;
-                if (!find(alpha) && !find(alpha))
+                CodeNode *node = new CodeNode;
+                std::string value($1);
+                if (!find(value, Integer))
                 {
                         std::string funcName = get_function()->name;
-                        std::string errorMsg = "use of unknown variable \"" + alpha + "\"" + " before declaration.";
+                        std::string errorMsg = "use of unknown variable \"" + value + "\"" + " before declaration.";
                         
                         yyerror(errorMsg.c_str());
                 }
-                node->name = alpha;
+                node->name = value;
                 $$ = node;
         }
         | ALPHA OPEN_BRACKET DIGIT CLOSE_BRACKET 
@@ -684,31 +686,50 @@ base_expression:
 assign_int: 
         ALPHA ASSIGN add_expression END_STATEMENT 
         {
-                std::string value = $1;
-                CodeNode *addexp = $3;
                 CodeNode *node = new CodeNode;
-
-                node->code = addexp->code; 
-                node->code += std::string("= ") + value + std::string(", ") + addexp->name + std::string("\n");
+                CodeNode *value = $3;
+                std::string int_name = $1;
+                node->code = value->code + "= " + int_name + ", " + value->name + "\n";
                 $$ = node;
+
+                if (find(int_name, Array))
+                {
+                        std::string funcName = get_function()->name;
+                        std::string errorMsg = "use of array variable \"" + int_name + "\"" + " without specifying index.";
+
+                        yyerror(errorMsg.c_str());
+                }
+                else if (!find(int_name, Integer)) {
+                        std::string funcName = get_function()->name;
+                        std::string error_message = int_name + " was used without declaration.";
+                        yyerror(error_message.c_str());
+                }
         }       
         ;
 
 assign_array: 
         ALPHA OPEN_BRACKET DIGIT CLOSE_BRACKET ASSIGN add_expression END_STATEMENT 
         {
-                CodeNode *node = new CodeNode;
-                std::string value = $1;
-                if (!find(value)) {
+                std::string array_name($1);
+                if (find(array_name, Integer))
+                {
                         std::string funcName = get_function()->name;
-                        std::string error_message = "\"" + value + "\" does not exist in the symbol table.";
+                        std::string error_message = "In function " + funcName + ", use of integer variable " + array_name + " as array (specifying index for integer variable).";
                         yyerror(error_message.c_str());
                 }
-
-                CodeNode* addexp = $6;
-
-                node->code += addexp->code;
-                node->code += std::string("[]= ") + value + std::string(", ") + $3 + std::string(", ") + addexp->name + std::string("\n");
+                else if (!find(array_name, Array)) {
+                        std::string funcName = get_function()->name;
+                        std::string error_message = "In function " + funcName + ", array " + array_name + " does not exist in the symbol table.";
+                        yyerror(error_message.c_str());
+                }
+                std::string temp = create_temp();
+                std::string temp2 = decl_temp_code(temp);
+                CodeNode* node = new CodeNode;
+                std::string symbol($1);
+                std::string index($3);
+                CodeNode* src = $6;
+                node->name = temp;
+                node->code = src->code + temp2 + "[]= " + array_name + ", " + index + ", " + src->name + "\n";  
                 $$ = node;
         }
         ;
@@ -815,7 +836,7 @@ arg:
         {
                 std::string value = $2;
                 Type t = Integer;
-                if (find(value))
+                if (find(value, Integer))
                 {
                         std::string errorMsg = "symbol " + value + " is multiply-defined.";
                         
