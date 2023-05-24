@@ -14,8 +14,7 @@ extern int column_number;
 extern int yylex(void);
 
 void yyerror(const char * s) {
-    printf("Error: On line %d, column %d: %s \n", line_number, column_number, s);
-    exit(1);
+        printf("Error: On line %d, column %d: %s \n", line_number, column_number, s);
 }
 
 
@@ -358,9 +357,9 @@ array_declaration:
                         yyerror(error_message.c_str());    
                 }
                 
-                if (find(array_name, Array)) {
+                if (find(array_name, Array) || find(array_name, Integer)) {
                         std::string funcName = get_function()->name;
-                        std::string error_message = "\"" + array_name + "\" already exists in the symbol table.";
+                        std::string error_message = array_name + " already exists in the symbol table.";
                         yyerror(error_message.c_str());
                 }
                 add_variable_to_symbol_table(array_name, Array);
