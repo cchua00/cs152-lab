@@ -92,6 +92,15 @@ void print_symbol_table(void) {
   printf("--------------------\n");
 }
 
+std::string create_label(){
+        static int num = 0;
+        std::ostringstream ss;
+        ss << num;
+        std::string value = "_label" + ss.str();
+        num += 1;
+        return value;
+}
+
 std::string create_temp() {
         static int num = 0;
         std::ostringstream ss;
@@ -423,16 +432,22 @@ input_statement:
 if_statement: 
         IF expression OPEN_SCOPE statements CLOSE_SCOPE else_statement 
         {
+                CodeNode *expr = $2; //cond
+                CodeNode *stmts = $4; //else
+                CodeNode *else_statement = $6; //ifpart... need to rework so the code here is in else_statement rule
                 CodeNode *node = new CodeNode; 
-                CodeNode *expr = $2; 
-                CodeNode *stmts = $4; 
-                CodeNode *else_statement = $6; 
-
-                std::string code = std::string("if ") + std::string("\n")  + std::string("else\n") + std::string("endif\n");
-                code += expr->code;
-                code += stmts->code;
-                code += else_statement->code;
-                node->code = code; 
+                
+                node->code = expr->code;
+                std::string label_start = create_label();
+                node->code += std::string("?:=") + label_start + std::string(", ") + expr->name + std::string("\n");
+                node->code += stmts->code;
+                node->code += std::string("?:= ") + label_start + ", " + expr->name + std::string("\n");
+                
+                std::string label_end = create_label(); 
+                node->code += std::string("?:=") + label_end + std::string("\n");
+                node->code += std::string(": ") + label_start + std::string("\n");
+                node->code += else_statement->code;
+                node->code += std::string(": ") + label_end + std::string("\n");
                 $$ = node;         
         }
         ;
