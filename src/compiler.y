@@ -423,30 +423,29 @@ input_statement:
 if_statement: 
         IF expression OPEN_SCOPE statements CLOSE_SCOPE else_statement 
         {
-                CodeNode *node = new CodeNode; 
+                /*CodeNode *node = new CodeNode; 
                 CodeNode *expr = $2; 
                 CodeNode *stmts = $4; 
                 CodeNode *else_statement = $6; 
-
-                std::string code = std::string("if ") + std::string("\n")  + std::string("else\n") + std::string("endif\n");
+                std::string code = expr->code + std::string("?:= ") + expr->name + std::string(", ")+ stmts->code + std::string("\n");
                 code += expr->code;
-                code += stmts->code;
+                code += stmt->code;
                 code += else_statement->code;
                 node->code = code; 
-                $$ = node;         
+                $$ = node; */        
         }
         ;
 
 else_statement: 
         ELSE OPEN_SCOPE statements CLOSE_SCOPE 
         {
-		CodeNode* node = new CodeNode; 
+	/*	CodeNode* node = new CodeNode; 
 		CodeNode* stmts = $3;
 		std::string code = std::string("else\n"); 
 		code += stmts->code; 
 		code += std::string("endif\n");  
 		node->code = code; 
-		$$ = node; 
+		$$ = node;*/ 
         }
         | %empty 
         {
@@ -458,20 +457,21 @@ else_statement:
 while_statement: 
         WHILE OPEN_PARAMETER binary_expression CLOSE_PARAMETER OPEN_SCOPE statements CLOSE_SCOPE 
         {
-		/*CodeNode* statements = $6; 	
+		CodeNode* statements = $6; 	
                 CodeNode* binary_expression = $3;
+		std::string code;
                 code += std::string(":= beginloop\n"); 
-                code += std::strig(".temp\n"); 
-                code += std::string("< temp, ") + std::string("\n"); 
+                code += std::string(".temp\n"); 
+                code += binary_expression->code; 
                 code += std::string("?:= loopbody, temp\n"); 
                 code += std::string(":= endloop\n"); 
                 code += std::string(": loopbody\n"); 
                 code += statements->code; 
                 code += std::string(":= beginloop\n"); 
                 code += std::string(": endloop\n"); 
-                CodeNode* node = new CodeNode; 
+		CodeNode* node = new CodeNode;  
                 node->code = code; 
-                $$ = node;*/
+                $$ = node;
         }
         ;
 
