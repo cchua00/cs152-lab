@@ -93,7 +93,7 @@ void print_symbol_table(void) {
 }
 
 std::string create_label(){
-        static int num = 0;
+        static int num = 1;
         std::ostringstream ss;
         ss << num;
         std::string value = "_label" + ss.str();
@@ -441,10 +441,10 @@ if_statement:
                 std::string label_start = create_label();
                 node->code += std::string("?:=") + label_start + std::string(", ") + expr->name + std::string("\n");
                 node->code += stmts->code;
-                node->code += std::string("?:= ") + label_start + ", " + expr->name + std::string("\n");
+                //node->code += std::string("?:= ") + label_start + ", " + expr->name + std::string("\n");
                 
                 std::string label_end = create_label(); 
-                node->code += std::string("?:=") + label_end + std::string("\n");
+                //node->code += std::string("?:=") + label_end + std::string("\n");
                 node->code += std::string(": ") + label_start + std::string("\n");
                 node->code += else_statement->code;
                 node->code += std::string(": ") + label_end + std::string("\n");
@@ -458,8 +458,8 @@ else_statement:
 		CodeNode* node = new CodeNode; 
 		CodeNode* stmts = $3;
 		std::string code = std::string("else\n"); 
-		code += stmts->code; 
-		code += std::string("endif\n");  
+
+		code += stmts->code; //this is being pushed to if_statement
 		node->code = code; 
 		$$ = node; 
         }
