@@ -457,9 +457,9 @@ else_statement:
         {
 		CodeNode* node = new CodeNode; 
 		CodeNode* stmts = $3;
-		std::string code = std::string("else\n"); 
+		//std::string code = std::string("else\n"); 
 
-		code += stmts->code; //this is being pushed to if_statement
+		std::string code = stmts->code; //this is being pushed to if_statement
 		node->code = code; 
 		$$ = node; 
         }
@@ -578,7 +578,7 @@ binary_expression:
                 std::string temp = create_temp();
                 CodeNode* node = new CodeNode;
                 node->code = $1->code + $3->code + decl_temp_code(temp);
-                node->code = std::string("== ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+                node->code += std::string("== ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
                 node->name = temp;
                 $$ = node;
         
@@ -588,7 +588,7 @@ binary_expression:
                 std::string temp = create_temp();
                 CodeNode *node = new CodeNode;
                 node->code = $1->code + $3->code + decl_temp_code(temp);
-                node->code = std::string("!= ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+                node->code += std::string("!= ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
                 node->name = temp;
                 $$ = node;
         }
@@ -597,7 +597,7 @@ binary_expression:
                 std::string temp = create_temp();
                 CodeNode *node = new CodeNode;
                 node->code = $1->code + $3->code + decl_temp_code(temp);
-                node->code = std::string("< ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+                node->code += std::string("< ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
                 node->name = temp;
                 $$ = node;
         }
@@ -606,7 +606,7 @@ binary_expression:
                 std::string temp = create_temp();
                 CodeNode *node = new CodeNode;
                 node->code = $1->code + $3->code + decl_temp_code(temp);
-                node->code = std::string("<= ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+                node->code += std::string("<= ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
                 node->name = temp;
                 $$ = node;
         }
@@ -615,7 +615,7 @@ binary_expression:
                 std::string temp = create_temp();
                 CodeNode *node = new CodeNode;
                 node->code = $1->code + $3->code + decl_temp_code(temp);
-                node->code = std::string("> ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+                node->code += std::string("> ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
                 node->name = temp;
                 $$ = node;
         }
@@ -624,7 +624,7 @@ binary_expression:
                 std::string temp = create_temp();
                 CodeNode *node = new CodeNode;
                 node->code = $1->code + $3->code + decl_temp_code(temp);
-                node->code = std::string(">= ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+                node->code += std::string(">= ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
                 node->name = temp;
                 $$ = node;
         }
