@@ -439,14 +439,14 @@ if_statement:
                 
                 node->code = expr->code;
                 std::string label_start = create_label();
-                node->code += std::string("?:=") + label_start + std::string(", ") + expr->name + std::string("\n");
-                node->code += stmts->code;
+                node->code += std::string("?:= ") + label_start + std::string(", ") + expr->name + std::string("\n");
+                node->code += else_statement->code;
                 //node->code += std::string("?:= ") + label_start + ", " + expr->name + std::string("\n");
                 
                 std::string label_end = create_label(); 
-                //node->code += std::string("?:=") + label_end + std::string("\n");
+                node->code += std::string(":= ") + label_end + std::string("\n");
                 node->code += std::string(": ") + label_start + std::string("\n");
-                node->code += else_statement->code;
+                node->code += stmts->code;
                 node->code += std::string(": ") + label_end + std::string("\n");
                 $$ = node;         
         }
