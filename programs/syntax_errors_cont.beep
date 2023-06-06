@@ -1,0 +1,12 @@
+int main() {
+  int i;
+  i = 5;
+
+  while(i > 10) {
+    
+    cout << i;
+    i = i + 1;
+
+  }
+  continue;
+}
