@@ -92,6 +92,15 @@ void print_symbol_table(void) {
   printf("--------------------\n");
 }
 
+std::string create_label(){
+        static int num = 1;
+        std::ostringstream ss;
+        ss << num;
+        std::string value = "_label" + ss.str();
+        num += 1;
+        return value;
+}
+
 std::string create_temp() {
         static int num = 0;
         std::ostringstream ss;
@@ -423,29 +432,36 @@ input_statement:
 if_statement: 
         IF expression OPEN_SCOPE statements CLOSE_SCOPE else_statement 
         {
-                /*CodeNode *node = new CodeNode; 
-                CodeNode *expr = $2; 
-                CodeNode *stmts = $4; 
-                CodeNode *else_statement = $6; 
-                std::string code = expr->code + std::string("?:= ") + expr->name + std::string(", ")+ stmts->code + std::string("\n");
-                code += expr->code;
-                code += stmt->code;
-                code += else_statement->code;
-                node->code = code; 
-                $$ = node; */        
+                CodeNode *expr = $2; //cond
+                CodeNode *stmts = $4; //else
+                CodeNode *else_statement = $6; //ifpart... need to rework so the code here is in else_statement rule
+                CodeNode *node = new CodeNode; 
+                
+                node->code = expr->code;
+                std::string label_start = create_label();
+                node->code += std::string("?:= ") + label_start + std::string(", ") + expr->name + std::string("\n");
+                node->code += else_statement->code;
+                //node->code += std::string("?:= ") + label_start + ", " + expr->name + std::string("\n");
+                
+                std::string label_end = create_label(); 
+                node->code += std::string(":= ") + label_end + std::string("\n");
+                node->code += std::string(": ") + label_start + std::string("\n");
+                node->code += stmts->code;
+                node->code += std::string(": ") + label_end + std::string("\n");
+                $$ = node;         
         }
         ;
 
 else_statement: 
         ELSE OPEN_SCOPE statements CLOSE_SCOPE 
         {
-	/*	CodeNode* node = new CodeNode; 
-		CodeNode* stmts = $3;
-		std::string code = std::string("else\n"); 
-		code += stmts->code; 
-		code += std::string("endif\n");  
-		node->code = code; 
-		$$ = node;*/ 
+		            CodeNode* node = new CodeNode; 
+		            CodeNode* stmts = $3;
+		            //std::string code = std::string("else\n"); 
+
+		            std::string code = stmts->code; //this is being pushed to if_statement
+		            node->code = code; 
+		            $$ = node; 
         }
         | %empty 
         {
@@ -563,7 +579,7 @@ binary_expression:
                 std::string temp = create_temp();
                 CodeNode* node = new CodeNode;
                 node->code = $1->code + $3->code + decl_temp_code(temp);
-                node->code = std::string("== ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+                node->code += std::string("== ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
                 node->name = temp;
                 $$ = node;
         
@@ -573,7 +589,7 @@ binary_expression:
                 std::string temp = create_temp();
                 CodeNode *node = new CodeNode;
                 node->code = $1->code + $3->code + decl_temp_code(temp);
-                node->code = std::string("!= ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+                node->code += std::string("!= ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
                 node->name = temp;
                 $$ = node;
         }
@@ -582,7 +598,7 @@ binary_expression:
                 std::string temp = create_temp();
                 CodeNode *node = new CodeNode;
                 node->code = $1->code + $3->code + decl_temp_code(temp);
-                node->code = std::string("< ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+                node->code += std::string("< ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
                 node->name = temp;
                 $$ = node;
         }
@@ -591,7 +607,7 @@ binary_expression:
                 std::string temp = create_temp();
                 CodeNode *node = new CodeNode;
                 node->code = $1->code + $3->code + decl_temp_code(temp);
-                node->code = std::string("<= ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+                node->code += std::string("<= ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
                 node->name = temp;
                 $$ = node;
         }
@@ -600,7 +616,7 @@ binary_expression:
                 std::string temp = create_temp();
                 CodeNode *node = new CodeNode;
                 node->code = $1->code + $3->code + decl_temp_code(temp);
-                node->code = std::string("> ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+                node->code += std::string("> ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
                 node->name = temp;
                 $$ = node;
         }
@@ -609,7 +625,7 @@ binary_expression:
                 std::string temp = create_temp();
                 CodeNode *node = new CodeNode;
                 node->code = $1->code + $3->code + decl_temp_code(temp);
-                node->code = std::string(">= ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+                node->code += std::string(">= ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
                 node->name = temp;
                 $$ = node;
         }
