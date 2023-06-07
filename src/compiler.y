@@ -480,20 +480,21 @@ while_statement:
         {
 		CodeNode* statements = $6; 	
                 CodeNode* binary_expression = $3;
-		std::string code;
-		std::strng loopname = create_loop();  
+                CodeNode* node = new CodeNode;
 		inloop++;
 		loopstack.push(inloop); 
+                std::string loopname = create_loop(); 
                 //code += std::string(". temp\n"); 
+                std::string integer = loopname.substr(loopname.find("p") + 1 , loopname.at(loopname.size() -1));
+                std::string code = std::string(": ") + loopname + std::string("\n");
                 code += binary_expression->code; 
-                code += std::string("?:= loopbody, ") + binary_expression->name + std::string("\n"); 
-                code += std::string(":= endloop\n"); 
-                code += std::string(": loopbody\n"); 
+                code += std::string("?:= loopbody") + integer + std::string(", ") + binary_expression->name + std::string("\n"); 
+                code += std::string(":= endloop") + integer + std::string("\n");
+                code += std::string(": loopbody") + integer + std::string("\n");
                 code += statements->code; 
-                code += std::string(":= beginloop\n"); 
-                code += std::string(": endloop\n");
-		loopstack.pop(); 
-		CodeNode* node = new CodeNode;  
+                code += std::string(":= ") + loopname + std::string("\n");
+                code += std::string(": endloop")+ integer + std::string("\n");
+                loopstack.pop(); 
                 node->code = code; 
                 $$ = node;
         }
