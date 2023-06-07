@@ -2,9 +2,6 @@ int main() {
   int i;
   i = 0;
 
-  continue;
-  break;
-
   while(i<=10) {
     cout << i << endl;
     if (i > 2) {
