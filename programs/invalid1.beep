@@ -7,5 +7,4 @@ int a = 4;
 int a_;  
 int ?; 
 cout << a << endl; 
-return 0;
 } 

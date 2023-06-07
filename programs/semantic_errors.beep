@@ -6,6 +6,4 @@ int main()
 
     cout << array2;
     cout << x[1];
-
-    return 0;
 }

@@ -1,18 +1,19 @@
 int main() {
 
-    int m;
-    int n;
-    int o;
+    int a;
+    int b;
+    int c;
     
-    cin >> n;
-    if (n >= 100) {
-        cout << n;
+    a = 100;
+    b = 50;
+
+    if (a < b) {
+        c = b;
     }
     else {
-        m = n-1;
-        cout << m;
+        c = a;
     }
 
-    cout << o;
+    cout << c << endl;
 
 }

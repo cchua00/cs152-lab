@@ -3,6 +3,4 @@ int main()
     int : beep; 
     beep = 5 + 4 * 3;
     int boop
-
-    return 0;
 }
