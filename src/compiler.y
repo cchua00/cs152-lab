@@ -475,14 +475,17 @@ else_statement:
         }
         ;
 
+loopbegin: WHILE {
+    inloop++;
+    loopstack.push(inloop);
+}
+
 while_statement: 
-         WHILE OPEN_PARAMETER binary_expression CLOSE_PARAMETER OPEN_SCOPE statements CLOSE_SCOPE 
+         loopbegin OPEN_PARAMETER binary_expression CLOSE_PARAMETER OPEN_SCOPE statements CLOSE_SCOPE 
         {
 		CodeNode* statements = $6; 	
                 CodeNode* binary_expression = $3;
                 CodeNode* node = new CodeNode;
-		inloop++;
-		loopstack.push(inloop); 
                 std::string loopname = create_loop(); 
                 //code += std::string(". temp\n"); 
                 std::string integer = loopname.substr(loopname.find("p") + 1 , loopname.at(loopname.size() -1));
@@ -511,8 +514,9 @@ break_statement:
                 }
                 else
                 {
-                  code +=  std::to_string(loopstack.top()) + std::string("\n");
+                  code +=  std::to_string(loopstack.top());
                 }
+                code+= std::string("\n");
                 node->code = code;
 		$$ = node; 		
         }
@@ -521,6 +525,7 @@ break_statement:
 continue_statement: 
         CONTINUE END_STATEMENT 
         {
+                CodeNode* node = new CodeNode; 
 		std::string code = std::string(":= beginloop"); 
                 if(loopstack.empty()){
                         std::string errorMsg = "Cannot have continue outside of a loop";
@@ -531,7 +536,6 @@ continue_statement:
                   code +=  std::to_string(loopstack.top());
                 }
                 code+= std::string("\n");
-                CodeNode* node = new CodeNode; 
                 node->code = code;
 		$$ = node; 
         }
