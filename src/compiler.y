@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <string>
+#include <stack>
 #include <iostream>
 #include <sstream> 
 #include <vector>
@@ -21,7 +22,7 @@ void yyerror(const char * s) {
 char *identToken;
 int numberToken;
 int count_names = 0;
-
+int inloop = -1; 
 enum Type { Integer, Array };
 
 struct CodeNode {
@@ -91,7 +92,7 @@ void print_symbol_table(void) {
   }
   printf("--------------------\n");
 }
-
+std::stack<int> loopstack; 
 std::string create_label(){
         static int num = 1;
         std::ostringstream ss;
@@ -109,7 +110,11 @@ std::string create_temp() {
         num += 1;
         return value;
 }
-
+std::string create_loop() 
+{
+	std::string t = std::string("beginloop")+std::to_string(loopstack.top()); 
+	return t; 
+} 
 std::string decl_temp_code(std::string &temp){
         return std::string(". ") + temp + std::string("\n");
 }
@@ -471,12 +476,14 @@ else_statement:
         ;
 
 while_statement: 
-        WHILE OPEN_PARAMETER binary_expression CLOSE_PARAMETER OPEN_SCOPE statements CLOSE_SCOPE 
+         WHILE OPEN_PARAMETER binary_expression CLOSE_PARAMETER OPEN_SCOPE statements CLOSE_SCOPE 
         {
 		CodeNode* statements = $6; 	
                 CodeNode* binary_expression = $3;
 		std::string code;
-                code += std::string(": beginloop\n"); 
+		std::strng loopname = create_loop();  
+		inloop++;
+		loopstack.push(inloop); 
                 //code += std::string(". temp\n"); 
                 code += binary_expression->code; 
                 code += std::string("?:= loopbody, ") + binary_expression->name + std::string("\n"); 
@@ -484,7 +491,8 @@ while_statement:
                 code += std::string(": loopbody\n"); 
                 code += statements->code; 
                 code += std::string(":= beginloop\n"); 
-                code += std::string(": endloop\n"); 
+                code += std::string(": endloop\n");
+		loopstack.pop(); 
 		CodeNode* node = new CodeNode;  
                 node->code = code; 
                 $$ = node;
