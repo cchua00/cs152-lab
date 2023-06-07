@@ -2,10 +2,10 @@ int main() {
     int i = 0;
     while (i < 10) {
         if (i == 4) {
-            i++;
-            continue;
+            i = i+1;
+            break;
         }
         cout << i;
-        i++;
+        i = i+1;
     }
 }

@@ -504,7 +504,16 @@ break_statement:
         BREAK END_STATEMENT 
         { 	
 		CodeNode* node = new CodeNode; 
-		node->code = std::string(":= endloop\n");  
+		std::string code = std::string(":= endloop"); 
+                if(loopstack.empty()){
+                        std::string errorMsg = "Cannot have break outside of a loop";
+                        yyerror(errorMsg.c_str());
+                }
+                else
+                {
+                  code +=  std::to_string(loopstack.top()) + std::string("\n");
+                }
+                node->code = code;
 		$$ = node; 		
         }
         ;  
@@ -512,8 +521,18 @@ break_statement:
 continue_statement: 
         CONTINUE END_STATEMENT 
         {
-		CodeNode* node = new CodeNode; 
-		node->code = std::string(":= beginloop\n"); 
+		std::string code = std::string(":= beginloop"); 
+                if(loopstack.empty()){
+                        std::string errorMsg = "Cannot have continue outside of a loop";
+                        yyerror(errorMsg.c_str());
+                }
+                else
+                {
+                  code +=  std::to_string(loopstack.top());
+                }
+                code+= std::string("\n");
+                CodeNode* node = new CodeNode; 
+                node->code = code;
 		$$ = node; 
         }
         ;
